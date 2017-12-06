@@ -224,6 +224,7 @@ User Function IncEspp()
 	Private cCustD1 := 0
 	Private cQtdD1	 := 0
 	Private cFamDes := ''
+	Private cPicmAE:= 0
 	cValGer:= GETMV("MV_PRICEGER")
 
 	If cIdUsuario $ cValGer
@@ -1040,7 +1041,8 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cVICMST := TRB->D1_ICMSRET/cVquant
 		//cPicmsC:= SD1->D1_PICM
 		cPicmsC:= SD1->D1_PICM
-
+		cPicmAE := 17 - cPicmsC // percentual icm antecipado especial
+		
 		cPPisC:= SD1->D1_ALQPIS  // PIS DE CREDITO
 		cPCONFC:= SD1->D1_ALQCOF // CONFIS DE CREDITO
 
@@ -1125,10 +1127,12 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 				IF F7_GRPCLI ="CF"
 					cPPisD:= SF7->F7_ALIQPIS
 					cPCONFD:= SF7->F7_ALIQCOF
+					
 					IF cTicmST = .T.
 						cICMST := SF7->F7_ALIQEXT
 						cPicmsC:= 0
 						cAicmD := 0
+						cPicmAE:= 0
 					ELSE
 						cICMST := 0
 						//   cPicmsC:= 0
@@ -1136,6 +1140,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 						If SF7->F7_BASEICM > 0
 							cAicmD:= ROUND(cAicmD * (SF7->F7_BASEICM / 100),0)
 							cPicmsC:= ROUND(cPicmsC * (SF7->F7_BASEICM / 100),0)
+							cPicmAE:= ROUND(cPicmAE * (SF7->F7_BASEICM / 100),0)
 						EndIf
 
 					ENDIF
@@ -1146,6 +1151,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 					cICMST := 0
 					cPicmsC:= 0
 					cAicmD := 0
+					cPicmAE:= 0
 
 				ENDIF
 
@@ -1167,6 +1173,8 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cCuRepo2:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus
 		cRepos2 := cCuRepo2
 		cCustCont:= (cCustCont + cVICMST + cRdesc + cIPI + cRfrete +cRsegCa +cRoutCus)-(cCustCont*(cPicmsC/100))-(cCustCont*(cPPisD/100))-(cCustCont*(cPCONFD/100))
+		
+		cPrTran:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus + (cCustoFa2*(cPicmAE/100))
 
 		/*
 		cEstoq1  := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_QATU")
@@ -1193,6 +1201,10 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		_cQuery+="             THEN 0"
 		_cQuery+=" 	           ELSE ROUND(SUM(SB2.B2_CCONT*SB2.B2_QATU)/SUM(SB2.B2_QATU),2)"
 		_cQuery+="        END AS B2_CCONT"
+		_cQuery+="       ,CASE WHEN SUM(SB2.B2_QATU) =0"
+		_cQuery+="             THEN 0"
+		_cQuery+=" 	           ELSE ROUND(SUM(SB2.B2_CUSTRAN*SB2.B2_QATU)/SUM(SB2.B2_QATU),2)"
+		_cQuery+="        END AS B2_CUSTRAN"		
 		_cQuery+=" FROM SB2010 SB2"
 		_cQuery+=" WHERE SB2.B2_FILIAL = '"+xFilial("SD1")+"'"
 		_cQuery+=" AND   SB2.B2_COD  IN("+cItens+")"
@@ -1207,6 +1219,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cCusCoGr:= TRC->B2_CCONT
 		cCuMedAn := TRC->B2_CREPM
 		cContAnt := TRC->B2_CCONT
+		cPrTranAN:= TRC->B2_CUSTRAN
 
 		TRC->(DBCLOSEAREA())
 
@@ -1252,11 +1265,13 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 		cCuRepo :=  (cCalRM1 +cCalRM2) / (cVqmedia+cVquant)
-		cRepos  := cCuRepo
+		cRepos  :=  cCuRepo
 
 		cCustoFa :=  (cCalFM1+cCalFM2) / (cVqmedia+cVquant)
 
 		cCustCont :=  (cCalCM1+cCalCM2) / (cVqmedia+cVquant)
+		
+		cPrTran:= ( (cPrTran*cVquant) + (cPrTranAN*cVqmedia) ) / (cVqmedia+cVquant)
 
 		/*
 		if lSimDe =.T.
@@ -3147,7 +3162,7 @@ STATIC FUNCTION Vmargem(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,
 	//cMarEst2 :=
 	//Calcula custo de transferencia
 
-	cPrTran :=  (( ( 1/(1 - cPerTran))*cre  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*icmd) - ((1/(1 - cPerTran))*0) )
+	//cPrTran :=  (( ( 1/(1 - cPerTran))*cre  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*icmd) - ((1/(1 - cPerTran))*0) )
 
 	nIdTra:= Round(nIdTra*100,6)
 	ICMD:= nGdAli
@@ -4915,6 +4930,7 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 		cVICMST :=SD1->D1_ICMSRET/cVquant
 		cPicmsC:= SD1->D1_PICM
+		cPicmAE := 17 - cPicmsC // percentual icm antecipado especial
 
 		cPPisC:= SD1->D1_ALQPIS  // PIS DE CREDITO
 		cPCONFC:= SD1->D1_ALQCOF // CONFIS DE CREDITO
@@ -5008,12 +5024,15 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 						cICMST := SF7->F7_ALIQEXT
 						cPicmsC:= 0
 						cAicmD := 0
+						cPicmAE:= 0
 					ELSE
 						cICMST := 0
 						//   cPicmsC:= 0
 						//   cAicmD := 0
 						If SF7->F7_BASEICM > 0
 							cAicmD:= ROUND(cAicmD * (SF7->F7_BASEICM / 100),0)
+							cPicmsC:= ROUND(cPicmsC * (SF7->F7_BASEICM / 100),0)
+							cPicmAE:= ROUND(cPicmAE * (SF7->F7_BASEICM / 100),0)
 						EndIf
 
 					ENDIF
@@ -5024,6 +5043,7 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 					cICMST := 0
 					cPicmsC:= 0
 					cAicmD := 0
+					cPicmAE:= 0
 
 				ENDIF
 
@@ -5049,11 +5069,15 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 		cCuRepo2:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus
 		cRepos2 := cCuRepo2
 		cCustCont:= (cCustCont + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus)-(cCustCont*(cPicmsC/100))-(cCustCont*(cPPisD/100))-(cCustCont*(cPCONFD/100))
+		
+		cPrTran:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus + (cCustoFa2*(cPicmAE/100))
+
 
 		cEstoq1  := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_QATU")
 		cCuRMed := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CREPM")
 		cCuFMed := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CFABM")
 		cCusCoGr:= POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CCONT")
+		cPrTranAN:= POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CUSTRAN")
 
 		cVqmedia := cEstoq1 - cVquant
 
@@ -5077,6 +5101,8 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 		cCustoFa :=  (cCalFM1+cCalFM2) / (cVqmedia+cVquant)
 
 		cCustCont :=  (cCalCM1+cCalCM2) / (cVqmedia+cVquant)
+		
+		cPrTran:= ( (cPrTran*cVquant) + (cPrTranAN*cVqmedia) ) / (cVqmedia+cVquant)		
 
 		/*
 		if lSimDe =.T.
@@ -5352,29 +5378,30 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 	lValid:= .T.
 
-	dbSelectArea("SB0")
-	dbSetOrder(1)
-	Dbseek(xFilial("SB0")+cProd)
-	IF FOUND()
-		//          ALERT(str(cVenliq,10,2)+"Normal"+STR(SB0->B0_PRV2,10,2))
-
-		IF  cVenliq > SB0->B0_PRV2+(SB0->B0_PRV2*5)/100
-			lValid:= .F.
-			//         ALERT(STR((SB0->B0_PRV2+(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
+	If SD1->D1_CF <> "1152"
+		dbSelectArea("SB0")
+		dbSetOrder(1)
+		Dbseek(xFilial("SB0")+cProd)
+		IF FOUND()
+			//          ALERT(str(cVenliq,10,2)+"Normal"+STR(SB0->B0_PRV2,10,2))
+	
+			IF  cVenliq > SB0->B0_PRV2+(SB0->B0_PRV2*5)/100
+				lValid:= .F.
+				//         ALERT(STR((SB0->B0_PRV2+(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
+			ENDIF
+	
+			IF cVenliq < SB0->B0_PRV2-(SB0->B0_PRV2*5)/100
+				lValid:= .F.
+				//       ALERT(STR((SB0->B0_PRV2-(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
+			ENDIF
+	
 		ENDIF
-
-		IF cVenliq < SB0->B0_PRV2-(SB0->B0_PRV2*5)/100
+	
+	
+		If !Empty(cBloque)
 			lValid:= .F.
-			//       ALERT(STR((SB0->B0_PRV2-(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
-		ENDIF
-
-	ENDIF
-
-
-	If !Empty(cBloque)
-		lValid:= .F.
+		EndIf
 	EndIf
-
 
 
 
