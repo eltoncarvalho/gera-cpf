@@ -3,7 +3,7 @@
 #Include "comxfun2.ch"
 #include "RwMake.ch"
 
- 
+
 /*/
 ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
@@ -27,22 +27,27 @@ User Function PEPRECO()
 	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 
-	Private cCadastro := "Precificação de Preço"
-	Private aCORES  := {}
-	Private oOk  := LoadBitMap(GetResources(), "LBOK")
-	Private oNo  := LoadBitMap(GetResources(), "LBNO")
-	Private oVerde := LoadBitmap(GetResources(),'br_verde')
-	Private oVerme := LoadBitmap(GetResources(),'br_vermelho')
-	Private oAmar := LoadBitmap(GetResources(),'br_amarelo')
-	Private oBranc := LoadBitmap(GetResources(),'br_branco')
-	Private oPret := LoadBitmap(GetResources(),'BR_PRETO')
-	Private lMantPr := .f.
+	Private cCadastro := "Precificação de Produto"
+	Private aCORES    := {}
+	Private oOk       := LoadBitMap(GetResources(), "LBOK")
+	Private oNo       := LoadBitMap(GetResources(), "LBNO")
+	Private oVerde    := LoadBitmap(GetResources(),'br_verde')
+	Private oVerme    := LoadBitmap(GetResources(),'br_vermelho')
+	Private oAmar     := LoadBitmap(GetResources(),'br_amarelo')
+	Private oBranc    := LoadBitmap(GetResources(),'br_branco')
+	Private oPret     := LoadBitmap(GetResources(),'BR_PRETO')
+	Private lMantPr   := .f.
+	Private lButton   := .f.
+	Private cFilArray 
+	Private lVariavs := .F.
+	
+	Private lChecBox1 := .F.
+	Private oChecBox1
+	Private cCorButao := 0
 
 	aCORES  :=  {;
 	{"SZ2->Z2_FLAG = SPACE(2)","BR_VERDE"  },;     //Produto Não Precificado
 	{"SZ2->Z2_FLAG <> SPACE(2)","BR_VERMELHO" }}   //Produto Ja Precificado
-
-
 
 	Private Vf:="  "
 
@@ -54,7 +59,6 @@ User Function PEPRECO()
 
 
 	Private cString := "SZ2"
-
 
 
 	dbSelectArea(cString)
@@ -213,18 +217,23 @@ User Function IncEspp()
 	Private cReviso :=''
 	Private oReviso
 	Private oVenLV
+	Private oMarEst2V
 	Private oVenLiq
 	Private oVenPR3
 	Private oQtdAt
-	Private cBgAtec:= "QLineEdit{ color: #ffffff; border: 1px solid #c5c9ca; background-color: #c36666;}"
+	Private oAtuaFil
+	
+	Private cBgAtec:= "QLineEdit{ color: #ffffff; border: 1px solid #c5c9ca; background-color: #c64545;}"
 	Private cBgNorm:= "QLineEdit{ color: #000000; border: 1px solid #c5c9ca; background-color: #ffffff;}"
+	Private cBgVerd:= "QLineEdit{ color: #ffffff; border: 1px solid #c5c9ca; background-color: #44b555;}"
+	Private cBgAzul:= "QLineEdit{ color: #ffffff; border: 1px solid #c5c9ca; background-color: #7bbbd8;}"
+	
 	Private lVisuali:= .f.
 	Private cCuMedAn := 0
 	Private cContAnt := 0
 	Private cCustD1 := 0
 	Private cQtdD1	 := 0
 	Private cFamDes := ''
-	Private cPicmAE:= 0
 	cValGer:= GETMV("MV_PRICEGER")
 
 	If cIdUsuario $ cValGer
@@ -371,7 +380,7 @@ User Function IncEspp()
 			cNota := _aNota[_nI,3]
 			cFornece := _aNota[_nI,5]
 			cSerie  := _aNota[_nI,4]
-			cLoja   := _aNota[_nI,6]
+			cLoja   := _aNota[_nI,6]     //AQUI
 			cEmissao :=_aNota[_nI,7]
 		endif
 	next
@@ -429,17 +438,17 @@ User Function IncEspp()
 	@ C(008),C(292)  Say "Outros Custos" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
 	@ C(008),C(337)  Say "Frete Extra" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
 
-	@ C(018),C(007) MsGet cFornece F3 "SA2"   Size C(030),C(009) COLOR CLR_BLACK PIXEL OF _oDlg  WHEN cFornece = SPACE(6)
+	@ C(018),C(007) MsGet cFornece F3 "SA2"   Size C(030),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg  WHEN cFornece = SPACE(6)
 	@ C(018),C(050) MsGet cLoja     Size C(015),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
 	@ C(018),C(080) MsGet cNota PICTURE "@!" Size C(025),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
 	@ C(018),C(118) MsGet cSerie Size C(015),C(009) COLOR CLR_BLACK PIXEL OF _oDlg  WHEN cFornece = SPACE(6)
 
 
-	@ C(018),C(157) MsGet oFrete VAR cFrete PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
-	@ C(018),C(202) MsGet cDescar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg Valid FbuDes() WHEN  cFornece = SPACE(6)
-	@ C(018),C(247) MsGet cSegcar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
-	@ C(018),C(292) MsGet cOuCust PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg Valid FbuOutc() WHEN cFornece = SPACE(6)
-	@ C(018),C(337) MsGet oFreteEX VAR cFreteEX PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(018),C(157) MsGet oFrete VAR cFrete PICTURE "@E 999,999.99" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(018),C(202) MsGet cDescar PICTURE "@E 999,999.99" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg Valid FbuDes() WHEN  cFornece = SPACE(6)
+	@ C(018),C(247) MsGet cSegcar PICTURE "@E 999,999.99" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(018),C(292) MsGet cOuCust PICTURE "@E 999,999.99" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg Valid FbuOutc() WHEN cFornece = SPACE(6)
+	@ C(018),C(337) MsGet oFreteEX VAR cFreteEX PICTURE "@E 999,999.99" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
 
 
 	fListBox2()
@@ -449,8 +458,8 @@ User Function IncEspp()
 	@ C(041),C(285) TO C(075),C(380) LABEL "" PIXEL OF _oDlg
 	@ C(045),C(292)  Say "Valor Bonificado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
 	@ C(045),C(337)  Say "Bonificação" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
-	@ C(050),C(292) MsGet cVboniR PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg Valid fdbonG(cVboniR) WHEN cVlrBoni <> 0 .AND. lBoni = .F.
-	@ C(050),C(337) MsGet cVlrBoni PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(050),C(292) MsGet cVboniR PICTURE "@E 999,999.9999" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg Valid fdbonG(cVboniR) WHEN cVlrBoni <> 0 .AND. lBoni = .F.
+	@ C(050),C(337) MsGet cVlrBoni PICTURE "@E 999,999.9999" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
 	@ C(065),C(292) CheckBox oSim Var lSim Prompt "Ratea Valor" Size C(048),C(008) PIXEL OF _oDlg WHEN cVboniR<>0 .AND. lBoni = .F.
 
 
@@ -459,8 +468,8 @@ User Function IncEspp()
 	@ C(084),C(292) Say "Valor Desconto" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
 	// Outras despesas
 	@ C(084),C(337)  Say "Outras Despesas" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF _oDlg
-	@ C(089),C(292) MsGet cVdesc PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
-	@ C(089),C(337) MsGet cOutDesp PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(089),C(292) MsGet cVdesc PICTURE "@E 999,999.9999" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
+	@ C(089),C(337) MsGet cOutDesp PICTURE "@E 999,999.9999" Size C(042),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF _oDlg WHEN cFornece = SPACE(6)
 	@ C(104),C(292) CheckBox oSimDe Var lSimDe Prompt "Ratea Valor" Size C(048),C(008) PIXEL OF _oDlg WHEN cVdesc<>0 .AND. lDesc = .F.
 	@ C(104),C(337) CheckBox oSimOd Var lSimOd Prompt "Ratea Valor" Size C(048),C(008) PIXEL OF _oDlg WHEN cOutDesp<>0 .AND.  lOdes = .F.
 
@@ -672,8 +681,8 @@ STATIC FUNCTION fLisP(nNota,nSerie,nFornec,nLoja)
 
 		DO WHILE SD1->D1_DOC = cNota .AND. SD1->D1_SERIE = nSerie .AND. SD1->D1_FORNECE = nFornec  .AND. SD1->D1_LOJA = nLoja .AND. !SD1->(Eof())
 			IF D1_CFOP='6910'   // VERIFICA QUE O PRODUTO É BONIFICAÇÃO É NÃO GRAVA NA TABELA
-		       SD1->(DbSkip())
-		       LOOP
+				SD1->(DbSkip())
+				LOOP
 			ENDIF
 
 			cAProduto:= D1_COD
@@ -1005,7 +1014,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		dbUseArea(.T.,"TOPCONN",TcGenQry(,,_cQuery),"TRB",.T.,.T.)
 
 
-// foi incluido  na query  _cQuery+=" AND   SD1.D1_CFOP <> '6910'  para não pegar produto que é bonificação 11/09/2017 (jorge)
+		// foi incluido  na query  _cQuery+=" AND   SD1.D1_CFOP <> '6910'  para não pegar produto que é bonificação 11/09/2017 (jorge)
 
 
 		If TRB->QTDTES > 1 .OR. TRB->QTDGR > 1
@@ -1041,8 +1050,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cVICMST := TRB->D1_ICMSRET/cVquant
 		//cPicmsC:= SD1->D1_PICM
 		cPicmsC:= SD1->D1_PICM
-		cPicmAE := 17 - cPicmsC // percentual icm antecipado especial
-		
+
 		cPPisC:= SD1->D1_ALQPIS  // PIS DE CREDITO
 		cPCONFC:= SD1->D1_ALQCOF // CONFIS DE CREDITO
 
@@ -1082,7 +1090,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cRenMed:= POSICIONE("SB0",1,xFilial("SB0")+cProd,"B0_LUCMCAT")
 		nQtdAt := SB0->B0_QTD2
 		nQtdPr := SB0->B0_QTDPR3
-
+		
 		cCustoFa2:= TRB->D1_VUNIT
 		cCustCont:= TRB->D1_VUNIT-(TRB->D1_VALDESC/TRB->D1_QUANT) // custo contabil utilizado para consumir o cmv  na contabilidade
 
@@ -1127,12 +1135,10 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 				IF F7_GRPCLI ="CF"
 					cPPisD:= SF7->F7_ALIQPIS
 					cPCONFD:= SF7->F7_ALIQCOF
-					
 					IF cTicmST = .T.
 						cICMST := SF7->F7_ALIQEXT
 						cPicmsC:= 0
 						cAicmD := 0
-						cPicmAE:= 0
 					ELSE
 						cICMST := 0
 						//   cPicmsC:= 0
@@ -1140,7 +1146,6 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 						If SF7->F7_BASEICM > 0
 							cAicmD:= ROUND(cAicmD * (SF7->F7_BASEICM / 100),0)
 							cPicmsC:= ROUND(cPicmsC * (SF7->F7_BASEICM / 100),0)
-							cPicmAE:= ROUND(cPicmAE * (SF7->F7_BASEICM / 100),0)
 						EndIf
 
 					ENDIF
@@ -1151,7 +1156,6 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 					cICMST := 0
 					cPicmsC:= 0
 					cAicmD := 0
-					cPicmAE:= 0
 
 				ENDIF
 
@@ -1173,8 +1177,6 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cCuRepo2:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus
 		cRepos2 := cCuRepo2
 		cCustCont:= (cCustCont + cVICMST + cRdesc + cIPI + cRfrete +cRsegCa +cRoutCus)-(cCustCont*(cPicmsC/100))-(cCustCont*(cPPisD/100))-(cCustCont*(cPCONFD/100))
-		
-		cPrTran:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus + (cCustoFa2*(cPicmAE/100))
 
 		/*
 		cEstoq1  := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_QATU")
@@ -1201,10 +1203,6 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		_cQuery+="             THEN 0"
 		_cQuery+=" 	           ELSE ROUND(SUM(SB2.B2_CCONT*SB2.B2_QATU)/SUM(SB2.B2_QATU),2)"
 		_cQuery+="        END AS B2_CCONT"
-		_cQuery+="       ,CASE WHEN SUM(SB2.B2_QATU) =0"
-		_cQuery+="             THEN 0"
-		_cQuery+=" 	           ELSE ROUND(SUM(SB2.B2_CUSTRAN*SB2.B2_QATU)/SUM(SB2.B2_QATU),2)"
-		_cQuery+="        END AS B2_CUSTRAN"		
 		_cQuery+=" FROM SB2010 SB2"
 		_cQuery+=" WHERE SB2.B2_FILIAL = '"+xFilial("SD1")+"'"
 		_cQuery+=" AND   SB2.B2_COD  IN("+cItens+")"
@@ -1219,7 +1217,6 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		cCusCoGr:= TRC->B2_CCONT
 		cCuMedAn := TRC->B2_CREPM
 		cContAnt := TRC->B2_CCONT
-		cPrTranAN:= TRC->B2_CUSTRAN
 
 		TRC->(DBCLOSEAREA())
 
@@ -1265,13 +1262,11 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 		cCuRepo :=  (cCalRM1 +cCalRM2) / (cVqmedia+cVquant)
-		cRepos  :=  cCuRepo
+		cRepos  := cCuRepo
 
 		cCustoFa :=  (cCalFM1+cCalFM2) / (cVqmedia+cVquant)
 
 		cCustCont :=  (cCalCM1+cCalCM2) / (cVqmedia+cVquant)
-		
-		cPrTran:= ( (cPrTran*cVquant) + (cPrTranAN*cVqmedia) ) / (cVqmedia+cVquant)
 
 		/*
 		if lSimDe =.T.
@@ -1430,25 +1425,25 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 	// Custo Anterior de Fabrica
 	@ C(001),C(007) Say "Custo Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(007) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(007) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(001),C(050) Say "Preço Pedido" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(050) MsGet nVlrPed  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(050) MsGet nVlrPed  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(001),C(093) Say "Produto" Size C(121),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(093) MsGet cDescr  PICTURE "@! " Size C(164),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(093) MsGet cDescr  PICTURE "@! " Size C(164),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(001),C(265) Say "Estado" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(265) MsGet cEst  PICTURE "@!" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(265) MsGet cEst  PICTURE "@!" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(001),C(305) Say "NCM" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(305) MsGet cNCM  PICTURE "@!" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(305) MsGet cNCM  PICTURE "@!" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(001),C(345) Say "Tipo Operacao" Size C(072),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(007),C(345) MsGet cTpOper  PICTURE "@!" Size C(115),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(007),C(345) MsGet cTpOper  PICTURE "@!" Size C(115),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
-	@ C(007),C(468) MsGet nIdTra PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	@ C(007),C(468) MsGet nIdTra PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
 	@ C(018),C(007) Say "Fabrica" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 	@ C(018),C(050) Say "Fabrica Media" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
@@ -1464,13 +1459,13 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 	@ C(037),C(093) Say "Familia" Size C(121),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(043),C(093) MsGet cFamDes  PICTURE "@! " Size C(164),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(043),C(093) MsGet cFamDes  PICTURE "@! " Size C(164),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(037),C(265) Say "Quantidade" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(043),C(265) MsGet cQtdD1  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(043),C(265) MsGet cQtdD1  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	@ C(037),C(305) Say "Valor Total" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(043),C(305) MsGet cCustD1  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(043),C(305) MsGet cCustD1  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	//@ C(008),C(320) TO C(065),C(380) LABEL "" PIXEL OF oDlgp
 
@@ -1486,8 +1481,8 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 
-	@ C(037),C(342)  Say "Qtd Min Atac" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgp
-	@ C(037),C(382)  Say "Qtd Min Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgp
+	@ C(037),C(345)  Say "Qtd Min Atac" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgp
+	@ C(037),C(385)  Say "Qtd Min Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgp
 
 	// Outras Despesas
 	@ C(037),C(425)  Say "Valor Despesas" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgp
@@ -1496,33 +1491,33 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 	//
 
-	@ C(025),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(025),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(025),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	//@ C(018),C(320) MsGet cVboni PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp valid fdboni(cVboni)  WHEN cVlrBoni <> 0
-	//@ C(018),C(373) MsGet cVlrBoA PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	//@ C(018),C(320) MsGet cVboni PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP valid fdboni(cVboni)  WHEN cVlrBoni <> 0
+	//@ C(018),C(373) MsGet cVlrBoA PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
-	@ C(025),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp valid (CalDe(cVdesU,cProd) ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))   WHEN lSimDe = .f.  .AND. cVdescAC>0
-	@ C(025),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
-
-
-	@ C(025),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp   valid (fdboni(cVboni,cprod),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))  WHEN cVlrBoA <> 0
-	@ C(025),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	@ C(025),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP valid (CalDe(cVdesU,cProd) ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))   WHEN lSimDe = .f.  .AND. cVdescAC>0
+	@ C(025),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
 
+	@ C(025),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP   valid (fdboni(cVboni,cprod),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))  WHEN cVlrBoA <> 0
+	@ C(025),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
-	@ C(043),C(342) MsGet oQtdAt var nQtdAt PICTURE "@E 999,999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp when lGerent = .t. valid (lMantPr := .f.,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-	@ C(043),C(382) MsGet nQtdPr PICTURE "@E 999,999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp when lGerent = .t. valid (lMantPr := .f.,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+
+
+	@ C(043),C(345) MsGet oQtdAt var nQtdAt PICTURE "@E 999,999" Size C(030),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP when lGerent = .t. valid (lMantPr := .f.,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+	@ C(043),C(385) MsGet nQtdPr PICTURE "@E 999,999" Size C(030),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP when lGerent = .t. valid (lMantPr := .f.,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
 
 	// Outras Despesas
-	@ C(043),C(425) MsGet cOutDsUS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp valid (CalouDe(cOutDsUS,cProd), Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))    WHEN cOutDsAN>0   //.AND. lSimOd = .f.
-	@ C(043),C(468) MsGet cOutDsAN PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	@ C(043),C(425) MsGet cOutDsUS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP valid (CalouDe(cOutDsUS,cProd), Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))    WHEN cOutDsAN>0   //.AND. lSimOd = .f.
+	@ C(043),C(468) MsGet cOutDsAN PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
 
 	//
@@ -1535,7 +1530,7 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 	@ C(037),C(007) Say "Reposição" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
-	@ C(043),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(043),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
 
@@ -1560,20 +1555,20 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 	@ C(060),C(385) Say "Sug Preço Varejo" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(060),C(425) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 
-	@ C(067),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(050) MsGet cPISV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(093) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(136) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(050) MsGet cPISV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(093) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(136) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(067),C(179) MsGet cIndTrV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(179) MsGet cIndTrV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(067),C(222) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(265) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgP WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-	@ C(067),C(305)  MsGet oVenLV var cVenLV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  WHEN  cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
+	@ C(067),C(222) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(265) MsGet oMarEst2V var cMarEst2V PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+	@ C(067),C(305)  MsGet oVenLV var cVenLV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  WHEN  cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
 
-	@ C(067),C(345) MsGet cSuMkVa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(385) MsGet cSuPrVa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(067),C(425) MsGet cVAvar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(345) MsGet cSuMkVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(385) MsGet cSuPrVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(067),C(425) MsGet cVAvar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
 
@@ -1596,19 +1591,19 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 	@ C(090),C(425) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 
 
-	@ C(097),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(050) MsGet cPIS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(093) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(136) MsGet cICMtri PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(050) MsGet cPIS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(093) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(136) MsGet cICMtri PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(097),C(179) MsGet cIndTrA PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(179) MsGet cIndTrA PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(097),C(222) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(265) MsGet cMarEst2 PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgP  WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-	@ C(097),C(305) MsGet oVenLiq var cVenLiq PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  WHEN cCustoFa = 0
-	@ C(097),C(345) MsGet cSuMkAt PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(385) MsGet cSuPrAt PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(097),C(425) MsGet cVAtac PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(222) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(265) MsGet oMarEst2 var cMarEst2 PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP  WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+	@ C(097),C(305) MsGet oVenLiq var cVenLiq PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  WHEN cCustoFa = 0
+	@ C(097),C(345) MsGet cSuMkAt PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(385) MsGet cSuPrAt PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(097),C(425) MsGet cVAtac PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
 	// COMPOOSICAO PRECO 3
@@ -1628,19 +1623,19 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 	@ C(120),C(385) Say "Sug Preço 3" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(120),C(425) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 
-	@ C(127),C(007) MsGet cCuRepo3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(050) MsGet cPISP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(093) MsGet cCOFINSP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(136) MsGet cICMtriP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(007) MsGet cCuRepo3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(050) MsGet cPISP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(093) MsGet cCOFINSP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(136) MsGet cICMtriP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(127),C(179) MsGet cIndTrP3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(179) MsGet cIndTrP3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(127),C(222) MsGet cCuFinalP3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(265) MsGet vMarPr3 PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgP WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-	@ C(127),C(305) MsGet oVenPR3 var cVenPR3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  WHEN cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
-	@ C(127),C(345) MsGet cSuMk3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(385) MsGet cSuPr3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(127),C(425) MsGet cVAPR3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(222) MsGet cCuFinalP3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(265) MsGet oMarPr3 var vMarPr3 PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP WHEN lGerent = .t. VALID (lMantPr := .f. ,Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+	@ C(127),C(305) MsGet oVenPR3 var cVenPR3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  WHEN cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
+	@ C(127),C(345) MsGet cSuMk3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(385) MsGet cSuPr3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(127),C(425) MsGet cVAPR3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
 
@@ -1661,13 +1656,13 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 	@ C(148),C(222) Say "ICM Debito" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 	@ C(148),C(265) Say "ICM Cr Presumido" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 
-	@ C(155),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(155),C(265) MsGet cCrdPre PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(155),C(265) MsGet cCrdPre PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 
 
@@ -1676,12 +1671,17 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 	@ C(076),C(465) Button "Analise Venda" Size C(037),C(012) PIXEL OF oDlgP Action (AnalVen(),lSai:= .f.)
 	@ C(090),C(465) Button "Divergencia Ped." Size C(037),C(012) PIXEL OF oDlgP Action (U_DESPNOT(),lSai:= .f.)
 
-	@ C(104),C(465) Button "Atualizar Filial" Size C(037),C(012) PIXEL OF oDlgP Action ATUFILIAL(cProd)
+	@ C(104),C(465) Button oAtuaFil PROMPT "Atualizar Filial" Size C(037),C(012) PIXEL OF oDlgP Action ATUFILIAL(cProd)
 	@ C(118),C(465) Button "Historico" Size C(037),C(012) PIXEL OF oDlgP Action HisPre(cProd)
 	@ C(132),C(465) Button "Conhecimento" Size C(037),C(012) PIXEL OF oDlgP Action MsDocument( "SF1", SF1->( Recno() ), 1 )
 	@ C(160),C(465) Button "Sair" Size C(037),C(012) PIXEL OF oDlgP Action (lSai:= .f.,oDlgP:END())
+	@ C(160),C(425) Button "Legendas" Size C(037),C(012) PIXEL OF oDlgP Action (LEGENDAS())
 
 
+	if cCorButao = 1
+		oAtuaFil:SetCss("QPushButton{ color: #ffffff; border: 1px solid #c5c9ca; background-color: #c64545;}")	
+		cCorButao := 0
+	endif
 
 
 
@@ -1691,11 +1691,9 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 
-
-
 	ACTIVATE MSDIALOG oDlgP CENTERED
-
-
+	
+	
 	IF lSaiE
 		/*
 		// Verificando que o Produto tem Familia
@@ -1873,13 +1871,13 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 		csql+=" 				,Z2_NUMTIT  = '"+cNumTit+"' "
 		csql+=" 				,Z2_FORDES  = '"+cForDesc+"' "
 		csql+=" 				,Z2_LOJDES  = '"+cLoDes+"' "
-		
-		
-    	csql+="                  ,Z2_VLRBON = CASE WHEN Z2_PROD = '"+cProd+"'  THEN "+cValToChar( ROUND(cVboni,2))+" ELSE 0 END " 
-		
-//		csql+=" 				,Z2_VLRBON  = "+cValToChar( ROUND(cVboni,2))+" "
-		
-		
+
+
+		csql+="                  ,Z2_VLRBON = CASE WHEN Z2_PROD = '"+cProd+"'  THEN "+cValToChar( ROUND(cVboni,2))+" ELSE 0 END " 
+
+		//		csql+=" 				,Z2_VLRBON  = "+cValToChar( ROUND(cVboni,2))+" "
+
+
 		csql+=" 				,Z2_CUSANT  = "+cValToChar( ROUND(cCusAnt,2))+" "
 		csql+=" 				,Z2_OUTDESP  = "+cValToChar( ROUND(cOutDsUS,2))+" "
 		csql+=" 				,Z2_CANREP  = "+cValToChar( ROUND(cCusanr,2))+" "
@@ -2262,6 +2260,18 @@ STATIC FUNCTION Fpreco(cProd,cNomeP)
 
 
 RETURN
+
+
+static Function LEGENDAS()    // função para legenda colorida
+
+	aLegenda := {{"BR_VERMELHO", "ABAIXO DA META"},;
+				{"BR_VERDE","META BAIXO DE 2%"},;
+				{"BR_AZUL","META ACIMA DE 20%"}} 
+
+	BrwLegenda("Legenda de cores 'Margem Líquida'.","Legendas",aLegenda)
+
+return
+
 
 Static Function HisPre(cProd)
 
@@ -2650,7 +2660,7 @@ STATIC FUNCTION Vnota(nNota,nSerie,nFornec,nLoja)
 
 	aListBox2 := {}
 
-    cOutDsAN:= 0
+	cOutDsAN:= 0
 
 	dbSelectArea("SZ2")
 	dbSetOrder(1)
@@ -2706,10 +2716,10 @@ STATIC FUNCTION Vnota(nNota,nSerie,nFornec,nLoja)
 
 		cVlrBoA += SZ2->Z2_VLRBON
 		cVdescA += SZ2->Z2_VLRDR
-        
-        
-        cOutDsAN+=SZ2->Z2_OUTDESP
-        
+
+
+		cOutDsAN+=SZ2->Z2_OUTDESP
+
 		// Guardando Valor da Descarga
 		IF SZ2->Z2_DESCT <> 0
 			cDescar := SZ2->Z2_DESCT
@@ -2748,18 +2758,18 @@ STATIC FUNCTION Vnota(nNota,nSerie,nFornec,nLoja)
 		ENDIF
 	ENDIF
 
-     IF cOutDesp > 0
-        IF lOdes  = .T.
-           IF cOutDsAN<>0
-              cOutDesp:= cOutDesp-cOutDsAN
-              cOutDsAN:= cOutDesp 
-           ELSE
-              cOutDsAN:= cOutDesp 
-           ENDIF
-        ELSE
-            cOutDsAN:= cOutDesp
-        ENDIF       
-     ENDIF
+	IF cOutDesp > 0
+		IF lOdes  = .T.
+			IF cOutDsAN<>0
+				cOutDesp:= cOutDesp-cOutDsAN
+				cOutDsAN:= cOutDesp 
+			ELSE
+				cOutDsAN:= cOutDesp 
+			ENDIF
+		ELSE
+			cOutDsAN:= cOutDesp
+		ENDIF       
+	ENDIF
 
 
 	oListBox2:SetArray(aListBox2)
@@ -2947,6 +2957,8 @@ STATIC FUNCTION Vmargem(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,
 		cSuMkVa:= round((cVlrLuc/cSuPrVa*100),2)
 
 	Endif
+	
+	//teste
 
 
 
@@ -3094,21 +3106,21 @@ STATIC FUNCTION Vmargem(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,
 	cCOFINSP3 := (cVenPR3*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
 	cPISP3    := (cVenPR3*PISC) - ((cf-(cVboni/cVquant))*PISD)
 
-    // Modificado Jorge porque valores estavam vindo negativo
-       IF cICMtriP3<0
-          cICMtriP3:= 0
-       ENDIF
+	// Modificado Jorge porque valores estavam vindo negativo
+	IF cICMtriP3<0
+		cICMtriP3:= 0
+	ENDIF
 
-       IF cCOFINSP3<0
-          cCOFINSP3:= 0
-       ENDIF
+	IF cCOFINSP3<0
+		cCOFINSP3:= 0
+	ENDIF
 
-       IF cPISP3 < 0
-          cPISP3 := 0
-       ENDIF
+	IF cPISP3 < 0
+		cPISP3 := 0
+	ENDIF
 
 
-    //
+	//
 
 
 
@@ -3162,7 +3174,7 @@ STATIC FUNCTION Vmargem(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,
 	//cMarEst2 :=
 	//Calcula custo de transferencia
 
-	//cPrTran :=  (( ( 1/(1 - cPerTran))*cre  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*icmd) - ((1/(1 - cPerTran))*0) )
+	cPrTran :=  (( ( 1/(1 - cPerTran))*cre  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*icmd) - ((1/(1 - cPerTran))*0) )
 
 	nIdTra:= Round(nIdTra*100,6)
 	ICMD:= nGdAli
@@ -3173,8 +3185,102 @@ STATIC FUNCTION Vmargem(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,
 
 	cMarPr3:= round(cMarPr3*100,2)
 
+//INICIO ELTON CARVALHO
+		
+	dDataMar := LEFT(DTOS(DATE()),6)
+	
+	dbSelectArea("ZA9")
+	dbSetOrder(2)
+	dbseek(xFilial("SB2")+cValToChar(dDataMar)+SB1->B1_COD)
+	
+		cMargLi1 := ZA9->ZA9_MGMVAR //META VAREJO
+		cMargLi2 := ZA9->ZA9_MGMATC //META ATACADO
+		cMargLi3 := ZA9->ZA9_MGMPR3 //META PREÇO 3
+	
+	dbSelectArea("ZA9")	
+	
+	//ALTERA COR 
+	IF cMarEst2V < cMargLi1
+		oMarEst2V:setcss(cBgAtec)
+	ENDIF
+	IF cMarEst2V >= cMargLi1 .AND. cMarEst2V < (cMargLi1*120)/100
+		oMarEst2V:setcss(cBgVerd)
+	ENDIF
+	IF cMarEst2V > (cMargLi1*120)/100
+		oMarEst2V:setcss(cBgAzul)
+	ENDIF
+	
+	
+	//ALTERA COR 
+	IF cMarEst2 < cMargLi2
+		oMarEst2:setcss(cBgAtec)
+	ENDIF
+	IF cMarEst2 >= cMargLi2 .AND. cMarEst2 < (cMargLi2*120)/100
+		oMarEst2:setcss(cBgVerd)
+	ENDIF
+	IF cMarEst2 > (cMargLi2*120)/100
+		oMarEst2:setcss(cBgAzul)
+	ENDIF
+	
+	
+	//ALTERA COR 
+	IF cMarPr3 < cMargLi3
+		oMarPr3:setcss(cBgAtec)
+	ENDIF
+	IF cMarPr3 >= cMargLi3 .AND. cMarPr3 < (cMargLi3*120)/100
+		oMarPr3:setcss(cBgVerd)
+	ENDIF
+	IF cMarPr3 > (cMargLi3*120)/100
+		oMarPr3:setcss(cBgAzul)
+	ENDIF
+
+
+	nFilia := xFilial("SB2")
+	
+	aListBox10 := {}
+
+	dbSelectArea("SM0")
+	dbgotop()
+
+	do while SM0->M0_CODIGO == '01' .AND. !SM0->(Eof())
+	
+		cCFI  := rtrim(SM0->M0_CODFIL)
+		cCIDA := SM0->M0_CIDENT
+
+			dbSelectArea("SB0")
+			dbSetOrder(1)
+			dbseek(cCFI+SB1->B1_COD)	
+
+			if SM0->M0_CODFIL <> Alltrim(nFilia) .AND. !EMPTY(Alltrim(SM0->M0_CGC)) 
+				Aadd(aListBox10,{cCFI, SB0->B0_PVENDA})
+			endif
+			
+			dbSelectArea("SM0")
+	
+		SM0->(DBSKIP())
+		
+	enddo
+	
+	for x := 1 to len(aListBox10)
+		if (cMargLi1*105)/100 > aListBox10[x,2] .OR. (cMargLi1*95)/100 < aListBox10[x,2]
+			cCorButao := 1
+			exit
+		endif
+	next
+	
+
+//FIM ELTON CARVALHO
 
 	If cAut = .f.
+
+	
+		If "A" $ cBloque
+			cReviso+='* Color!'  + Chr(13) + Chr(10)
+			oVenLV:setcss(cBgAtec)
+		Else
+			oVenLV:setcss(cBgNorm)
+		EndIf
+		
 		If "A" $ cBloque
 			cReviso+='* Rentabilidade no varejo menor que rentabilidade média da categoria!'  + Chr(13) + Chr(10)
 			oVenLV:setcss(cBgAtec)
@@ -3498,6 +3604,10 @@ USER FUNCTION ViEspp()
 	Private oVenLV
 	Private oVenLiq
 	Private oVenPR3
+	
+	Private oMarPr3
+	Private oMarEst2     
+	
 	Private oQtdAt
 	Private lVisuali:= .t.
 
@@ -3648,25 +3758,25 @@ USER FUNCTION ViEspp()
 
 	// Custo Anterior de Fabrica
 	@ C(001),C(007) Say "Custo Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(007),C(007) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(007),C(007) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(001),C(050) Say "Preço Pedido" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(007),C(050) MsGet nVlrPed  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cCustoFa = 0
+	@ C(007),C(050) MsGet nVlrPed  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cCustoFa = 0
 
 	@ C(001),C(093) Say "Produto" Size C(121),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 	@ C(007),C(093) MsGet cDescr  PICTURE "@! " Size C(164),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(001),C(265) Say "Estado" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(007),C(265) MsGet cEst  PICTURE "@!" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(007),C(265) MsGet cEst  PICTURE "@!" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(001),C(305) Say "NCM" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(007),C(305) MsGet cNCM  PICTURE "@!" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(007),C(305) MsGet cNCM  PICTURE "@!" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(001),C(345) Say "Tipo Operacao" Size C(072),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 	@ C(007),C(345) MsGet cTpOper  PICTURE "@!" Size C(115),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(001),C(468)  Say "% Cust Transf" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(007),C(468) MsGet nIdTra PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(007),C(468) MsGet nIdTra PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(018),C(007) Say "Fabrica" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
 	@ C(018),C(050) Say "Fabrica Media" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
@@ -3692,35 +3802,35 @@ USER FUNCTION ViEspp()
 
 
 
-	@ C(025),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 
 
-	@ C(025),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(025),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
-	@ C(025),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv   WHEN cVlrff = 0
-	@ C(025),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(025),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv   WHEN cVlrff = 0
+	@ C(025),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	// Outras Despesas
-	@ C(043),C(425) MsGet cOutDsUS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(043),C(468) MsGet cOutDsAN PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(043),C(425) MsGet cOutDsUS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(043),C(468) MsGet cOutDsAN PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 	@ C(037),C(007) Say "Reposição" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
-	@ C(043),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(043),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
 
 
 	@ C(037),C(339)  Say "Qtd Min Atac" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 	@ C(037),C(382)  Say "Qtd Min Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
-	@ C(043),C(339) MsGet nQtdAt PICTURE "@E 999,999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv when cVlrff = 0
-	@ C(043),C(382) MsGet nQtdPr PICTURE "@E 999,999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv when cVlrff = 0
+	@ C(043),C(339) MsGet nQtdAt PICTURE "@E 999,999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv when cVlrff = 0
+	@ C(043),C(382) MsGet nQtdPr PICTURE "@E 999,999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv when cVlrff = 0
 
 	// Preço VAREJO
 	@ 069 , 002 GROUP oGroup2 TO 107, 590 PROMPT "Composicao de custos do preço de Varejo" OF oDlgv COLOR 0, 16777215 PIXEL
@@ -3734,15 +3844,15 @@ USER FUNCTION ViEspp()
 	@ C(060),C(345) Say "Preço de Varejo" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
 	@ C(060),C(385) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 
-	@ C(067),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(093) MsGet cPISV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(136) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(179) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(222) MsGet cIndTrV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(265) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(305) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(067),C(345) MsGet cVenLV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
-	@ C(067),C(385) MsGet cVAvar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(093) MsGet cPISV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(136) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(179) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(222) MsGet cIndTrV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(265) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(305) MsGet oMarEst2V var cMarEst2V PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(067),C(345) MsGet cVenLV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
+	@ C(067),C(385) MsGet cVAvar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 
 
@@ -3760,16 +3870,16 @@ USER FUNCTION ViEspp()
 	@ C(090),C(385) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 
 
-	@ C(097),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(093) MsGet cPIS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(136) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(179) MsGet cICMtri PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(222) MsGet cIndTrA PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(265) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(097),C(305) MsGet cMarEst2 PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv  WHEN cVlrff = 0 //VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3) WHEN cPreSug = 0
-	@ C(097),C(345) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
-	@ C(097),C(385) MsGet cVAtac PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	//@ C(048),C(308) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  VALID    VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,cVenLiq) WHEN cPreSug = 0
+	@ C(097),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(093) MsGet cPIS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(136) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(179) MsGet cICMtri PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(222) MsGet cIndTrA PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(265) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(097),C(305) MsGet cMarEst2 PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv  WHEN cVlrff = 0 //VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3) WHEN cPreSug = 0
+	@ C(097),C(345) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
+	@ C(097),C(385) MsGet cVAtac PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	//@ C(048),C(308) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  VALID    VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,cVenLiq) WHEN cPreSug = 0
 
 
 
@@ -3788,16 +3898,16 @@ USER FUNCTION ViEspp()
 	@ C(120),C(345) Say "Preço Atac 3" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
 	@ C(120),C(385) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgv
 
-	@ C(127),C(050) MsGet cCuRepo3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(093) MsGet cPISP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(136) MsGet cCOFINSP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(179) MsGet cICMtriP3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(050) MsGet cCuRepo3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(093) MsGet cPISP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(136) MsGet cCOFINSP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(179) MsGet cICMtriP3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
-	@ C(127),C(222) MsGet cIndTrP3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(265) MsGet cCuFinalP3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(305) MsGet vMarPr3 PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(127),C(345) MsGet cVenPR3 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
-	@ C(127),C(385) MsGet cVAPR3 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(222) MsGet cIndTrP3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(265) MsGet cCuFinalP3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(305) MsGet vMarPr3 PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(127),C(345) MsGet cVenPR3 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv  WHEN cVlrff = 0
+	@ C(127),C(385) MsGet cVAPR3 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF oDlgv WHEN cVlrff = 0
 
 
 
@@ -3817,13 +3927,13 @@ USER FUNCTION ViEspp()
 	@ C(148),C(222) Say "ICM Debito" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
 	@ C(148),C(265) Say "ICM Cr Presumido" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgv
 
-	@ C(155),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
-	@ C(155),C(265) MsGet cCrdPre PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
+	@ C(155),C(265) MsGet cCrdPre PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED PIXEL OF oDlgv WHEN cVlrff = 0
 
 
 
@@ -3893,11 +4003,11 @@ USER FUNCTION CaEspp()
 	@ C(018),C(118) MsGet cSerie Size C(015),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC  WHEN cFornece = SPACE(6)
 
 
-	@ C(018),C(157) MsGet oFrete VAR cFrete PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
-	@ C(018),C(202) MsGet cDescar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
-	@ C(018),C(247) MsGet cSegcar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
+	@ C(018),C(157) MsGet oFrete VAR cFrete PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
+	@ C(018),C(202) MsGet cDescar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
+	@ C(018),C(247) MsGet cSegcar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
 
-	@ C(018),C(292) MsGet cOuCust PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
+	@ C(018),C(292) MsGet cOuCust PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK PIXEL OF _oDlgC WHEN cFornece = SPACE(6)
 
 
 	@ C(40),C(007) ListBox oListBox2 Fields ;
@@ -3936,11 +4046,11 @@ USER FUNCTION CaEspp()
 
 
 		DO WHILE SZ2->Z2_DOC = cNota .AND. SZ2->Z2_SERIE = cSerie .AND. SZ2->Z2_FORNECE = cFornece   .AND. SZ2->Z2_LOJA = cLoja .AND. !SZ2->(Eof())
-		/*	IF Z2_FLAG <> 'OK'
-				dbskip()
-				LOOP
+			/*	IF Z2_FLAG <> 'OK'
+			dbskip()
+			LOOP
 			ENDIF
-        */
+			*/
 			lFam:= .F.
 			cFamil:= POSICIONE("SB1",1,xFilial("SB1")+SZ2->Z2_PROD,"B1_CFAM")
 			DbSelectArea("SZ1")
@@ -4566,20 +4676,29 @@ STATIC Function ATUFILIAL(profil)
 	Private INCLUI := .F.
 	Private ALTERA := .F.
 	Private DELETA := .F.
+	
+	lVariavs := .F.
+	
 	// Privates das ListBoxes
 	Private aListBox5 := {}
 	Private oListBox5
 	Private profil
+	Private oLegObs
 
-	DEFINE MSDIALOG _oDlgAF TITLE "Atualização de Filial" FROM C(214),C(212) TO C(400),C(680) PIXEL
+	Private oTFont1 := TFont():New('ARIAL',,-14,.T.)
+
+	DEFINE MSDIALOG _oDlgAF TITLE "Atualização de Filial" FROM C(214),C(212) TO C(390),C(812) PIXEL
 
 	// Cria Componentes Padroes do Sistema
-	@ C(080),C(013) Button "Confirma" Size C(037),C(012) PIXEL OF _oDlgAF ACTION FModPf(profil)
-	@ C(080),C(067) Button "Sair" Size C(037),C(012) PIXEL OF _oDlgAF ACTION _oDlgAF:end()
+	//@ C(070),C(205) Button "Confirma" Size C(037),C(012) PIXEL OF _oDlgAF ACTION FModPf(profil)
+	@ C(070),C(250) Button "Sair" Size C(037),C(012) PIXEL OF _oDlgAF ACTION _oDlgAF:end()
+	@ 092, 006 SAY oLegObs PROMPT "+ Duplo click na Filial em que deseja Analizar a Venda" SIZE 184, 010 OF _oDlgAF COLORS CLR_BLUE PIXEL 
 
 	// Chamadas das ListBox do Sistema
 	fListBox5(profil)
 
+	oLegObs:setFont(oTFont1)
+	
 	ACTIVATE MSDIALOG _oDlgAF CENTERED
 
 Return(.T.)
@@ -4602,45 +4721,76 @@ Static Function fListBox5(profil2)
 	//     ListBox para SIM.
 	// lEditCell( aListBox, oListBox, "@!", oListBox:ColPos )
 
-	@ C(015),C(014) ListBox oListBox5 Fields ;
-	HEADER "Filial","Varejo"," Atacado";
-	Size C(200),C(050) Of _oDlgAF Pixel;
-	ColSizes 100,50,50;
+	@ C(005),C(007) ListBox oListBox5 Fields ;
+	HEADER "Filial","Varejo","MKP Varejo", "Meta varejo", "Atacado", " MKP Atacado", "Meta Atacado", "Preço 3", "MKP PREÇO3" , "Meta PREÇO3";
+	Size C(293),C(060) Of _oDlgAF Pixel;
+	ColSizes 80,30,30,30,30,30,30,30,30,30;
 	On DBLCLICK (;
 	Iif(oListBox5:ColPos==2,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
 	Iif(oListBox5:ColPos==3,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==4,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==5,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==6,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==7,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==8,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==9,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
+	Iif(oListBox5:ColPos==10,lEditCell( aListBox5, oListBox5, "@E 999,999.99", oListBox5:ColPos),nil),;
 	oListBox5:Refresh(aListBox5))
-
 	oListBox5:SetArray(aListBox5)
 
-
+	
 	// Carrege aqui sua array da Listbox
-
-
+	dDataPre := LEFT(DTOS(DATE()),6)
+	
 	dbSelectArea("SM0")
 	dbgotop()
 
-	do while !SM0->(Eof())
-		cCFI:= rtrim(SM0->M0_CODFIL)
-		cCIDA:=SM0->M0_CIDENT
-		dbSelectArea("SB0")
-		dbSetOrder(1)
-		dbseek(cCFI+profil2)
-		Aadd(aListBox5,{cCFI+" - "+cCIDA,SB0->B0_PRV1,SB0->B0_PRV2})
+	do while SM0->M0_CODIGO == '01' .AND. !SM0->(Eof())
+	
+		cCFI  := rtrim(SM0->M0_CODFIL)
+		cCIDA := SM0->M0_CIDENT
 
-		dbSelectArea("SM0")
+			dbSelectArea("SB0")
+			dbSetOrder(1)
+			dbseek(cCFI+profil2)	
+			
+				dbSelectArea("ZA9")
+				dbSetOrder(2)
+				dbseek(cCFI+cValToChar(dDataPre)+profil2)
+				
+					if !EMPTY(Alltrim(SM0->M0_CGC)) 
+						Aadd(aListBox5,{Alltrim(cCFI+" - "+cCIDA),SB0->B0_PRV1,SB0->B0_PVENDA,ZA9->ZA9_MGMVAR,SB0->B0_PRV2,SB0->B0_MARESP,ZA9->ZA9_MGMATC,SB0->B0_PRV6,SB0->B0_MKPPR3,ZA9->ZA9_MGMPR3})
+					endif
+				
+				dbSelectArea("ZA9")
+			
+			dbSelectArea("SM0")
+	
 		SM0->(DBSKIP())
+		
 	enddo
 
-
+	oListBox5:bLDblClick := {|| AnalVenL2(LEFT(aListBox5[oListBox5:nAT,01],4))} 	
+	
 	oListBox5:bLine := {||{;
 	aListBox5[oListBox5:nAT,01],;
 	aListBox5[oListBox5:nAT,02],;
-	aListBox5[oListBox5:nAT,03]}}
-
+	aListBox5[oListBox5:nAT,03],;
+	aListBox5[oListBox5:nAT,04],;
+	aListBox5[oListBox5:nAT,05],;
+	aListBox5[oListBox5:nAT,06],;
+	aListBox5[oListBox5:nAT,07],;
+	aListBox5[oListBox5:nAT,08],;
+	aListBox5[oListBox5:nAT,09],;
+	aListBox5[oListBox5:nAT,10]}}
+	
+	
+	oListBox5:Refresh()
 
 
 Return Nil
+
+/* ELTON CARVALHO 
 
 Static Function FModPf(cpfil)
 
@@ -4674,7 +4824,7 @@ Static Function FModPf(cpfil)
 
 return
 
-
+FIM ELTON CARVALHO */ 
 
 Static Function FaObs(obs)
 
@@ -4691,7 +4841,7 @@ Static Function FaObs(obs)
 	,_oDlgoBS,190,70,,,,,,.T.,,,,,,.T.)
 
 
-	@ C(080),C(005) Button "Sair" Size C(037),C(012) PIXEL OF _oDlgoBS ACTION _oDlgoBS:END()
+	@ C(080),C(010) Button "Sair" Size C(037),C(012) PIXEL OF _oDlgoBS ACTION _oDlgoBS:END()
 
 	ACTIVATE MSDIALOG _oDlgoBS CENTERED
 
@@ -4930,7 +5080,6 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 		cVICMST :=SD1->D1_ICMSRET/cVquant
 		cPicmsC:= SD1->D1_PICM
-		cPicmAE := 17 - cPicmsC // percentual icm antecipado especial
 
 		cPPisC:= SD1->D1_ALQPIS  // PIS DE CREDITO
 		cPCONFC:= SD1->D1_ALQCOF // CONFIS DE CREDITO
@@ -5024,15 +5173,12 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 						cICMST := SF7->F7_ALIQEXT
 						cPicmsC:= 0
 						cAicmD := 0
-						cPicmAE:= 0
 					ELSE
 						cICMST := 0
 						//   cPicmsC:= 0
 						//   cAicmD := 0
 						If SF7->F7_BASEICM > 0
 							cAicmD:= ROUND(cAicmD * (SF7->F7_BASEICM / 100),0)
-							cPicmsC:= ROUND(cPicmsC * (SF7->F7_BASEICM / 100),0)
-							cPicmAE:= ROUND(cPicmAE * (SF7->F7_BASEICM / 100),0)
 						EndIf
 
 					ENDIF
@@ -5043,7 +5189,6 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 					cICMST := 0
 					cPicmsC:= 0
 					cAicmD := 0
-					cPicmAE:= 0
 
 				ENDIF
 
@@ -5069,15 +5214,11 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 		cCuRepo2:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus
 		cRepos2 := cCuRepo2
 		cCustCont:= (cCustCont + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus)-(cCustCont*(cPicmsC/100))-(cCustCont*(cPPisD/100))-(cCustCont*(cPCONFD/100))
-		
-		cPrTran:= cCustoFa2 + cVICMST + cIPI + cRdesc + cRfrete +cRsegCa +cRoutCus + (cCustoFa2*(cPicmAE/100))
-
 
 		cEstoq1  := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_QATU")
 		cCuRMed := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CREPM")
 		cCuFMed := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CFABM")
 		cCusCoGr:= POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CCONT")
-		cPrTranAN:= POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CUSTRAN")
 
 		cVqmedia := cEstoq1 - cVquant
 
@@ -5101,8 +5242,6 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 		cCustoFa :=  (cCalFM1+cCalFM2) / (cVqmedia+cVquant)
 
 		cCustCont :=  (cCalCM1+cCalCM2) / (cVqmedia+cVquant)
-		
-		cPrTran:= ( (cPrTran*cVquant) + (cPrTranAN*cVqmedia) ) / (cVqmedia+cVquant)		
 
 		/*
 		if lSimDe =.T.
@@ -5215,18 +5354,18 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 	*/
 
 	/*
-	@ C(018),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR  CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(018),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(007) MsGet cCustoFa2 PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(050) MsGet cCustoFa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR  CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(093) MsGet cVICMST PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(136) MsGet cIPI PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(179) MsGet cRdesc PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(222) MsGet cRfrete PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(265) MsGet cRsegCa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(018),C(305) MsGet cRoutCus PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 	*/
 
-	//@ C(018),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp valid CalDe(cVdesU,cProd)    WHEN lSimDe = .f.  .AND. cVdescAC>0
-	//@ C(018),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	//@ C(018),C(345) MsGet cVdesU PICTURE  "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP valid CalDe(cVdesU,cProd)    WHEN lSimDe = .f.  .AND. cVdescAC>0
+	//@ C(018),C(385) MsGet cVdescA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
 	IF lSimDe = .f.  .AND. cVdescAC>0
 		CalDe(cVdesU,cProd)
@@ -5237,8 +5376,8 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 
 
-	//@ C(018),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp   valid fdboni(cVboni,cprod)  WHEN cVlrBoA <> 0
-	//@ C(018),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgp WHEN cFornece = SPACE(6)
+	//@ C(018),C(425) MsGet cVboni PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP   valid fdboni(cVboni,cprod)  WHEN cVlrBoA <> 0
+	//@ C(018),C(468) MsGet cVlrBoA PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cFornece = SPACE(6)
 
 
 
@@ -5250,11 +5389,11 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 	/*
 	@ C(038),C(351) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(048),C(351) MsGet cVAtac PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(351) MsGet cVAvar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(351) MsGet cVAtac PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(351) MsGet cVAvar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 	// Custo Anterior de Fabrica
 	@ C(098),C(351) Say "Custo Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
-	@ C(0108),C(351) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(0108),C(351) MsGet cCuAntF  PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 	*/
 
 
@@ -5268,17 +5407,17 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 	@ C(038),C(136) Say "COFINS" Size C(025),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(038),C(179) Say "ICMS Tributado" Size C(055),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(038),C(222) Say "Custo Final" Size C(025),C(008) COLOR CLR_RED PIXEL OF oDlgP
-	@ C(038),C(265) Say "Margem Liquida" Size C(055),C(008) COLOR CLR_BLUE PIXEL OF oDlgP
+	@ C(038),C(265) Say "Margem Liquida" Size C(055),C(008) COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP
 	@ C(038),C(308) Say "Preço de Atacado" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 	*/
 
 	/*
-	@ C(048),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(048),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(048),C(093) MsGet cPIS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(048),C(136) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(048),C(179) MsGet cICMtri PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(048),C(222) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(007) MsGet cCuRepo2 PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(050) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(093) MsGet cPIS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(136) MsGet cCOFINS PICTURE "@E 999,999.9999" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(179) MsGet cICMtri PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(048),C(222) MsGet cCuFinal PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 	*/
 
 
@@ -5294,8 +5433,8 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 	Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.t.)
 
-	//@ C(048),C(265) MsGet cMarEst2 PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgP   VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD) WHEN cPreSug = 0
-	//@ C(048),C(308) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  WHEN cCustoFa = 0
+	//@ C(048),C(265) MsGet cMarEst2 PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP   VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD) WHEN cPreSug = 0
+	//@ C(048),C(308) MsGet cVenLiq PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  WHEN cCustoFa = 0
 
 
 
@@ -5308,19 +5447,19 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 	@ C(068),C(093) Say "COFINS" Size C(025),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(068),C(136) Say "ICMS Tributado" Size C(055),C(008) COLOR CLR_BLACK PIXEL OF oDlgP
 	@ C(068),C(179) Say "Custo Final" Size C(025),C(008) COLOR CLR_RED PIXEL OF oDlgP
-	@ C(068),C(222) Say "Margem Liquida" Size C(055),C(008) COLOR CLR_BLUE PIXEL OF oDlgP
+	@ C(068),C(222) Say "Margem Liquida" Size C(055),C(008) COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP
 	@ C(068),C(265) Say "Preço de Varejo" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 	*/
 
 	/*
 
-	@ C(078),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(050) MsGet cPISV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(093) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(136) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(179) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(078),C(222) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oDlgP WHEN cCustoFa = 0 //VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cICMST,cAicmD,cCuRepo,cPPisD,cPCONFD)
-	@ C(078),C(265) MsGet cVenLV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP  WHEN cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
+	@ C(078),C(007) MsGet cCuRepo PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(050) MsGet cPISV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(093) MsGet cCOFINSV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(136) MsGet cICMtriV PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(179) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(078),C(222) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0 //VALID Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cICMST,cAicmD,cCuRepo,cPPisD,cPCONFD)
+	@ C(078),C(265) MsGet cVenLV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP  WHEN cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
 
 	*/
 
@@ -5336,13 +5475,13 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 	@ C(108),C(179) Say "ICM Credito" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 	@ C(108),C(222) Say "ICM Debito" Size C(055),C(008) COLOR CLR_RED PIXEL OF oDlgP
 
-	@ C(118),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(118),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(118),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(118),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(007) MsGet cPPisC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(050) MsGet cPCONFC  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(093) MsGet cPPisD  PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(136) MsGet cPCONFD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
-	@ C(118),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
-	@ C(118),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(179) MsGet cPicmsC PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
+	@ C(118),C(222) MsGet cAicmD PICTURE "@E 999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oDlgP WHEN cCustoFa = 0
 
 	*/
 
@@ -5378,30 +5517,29 @@ STATIC FUNCTION FPREAUT(cProd,cNomeP)
 
 	lValid:= .T.
 
-	If SD1->D1_CF <> "1152"
-		dbSelectArea("SB0")
-		dbSetOrder(1)
-		Dbseek(xFilial("SB0")+cProd)
-		IF FOUND()
-			//          ALERT(str(cVenliq,10,2)+"Normal"+STR(SB0->B0_PRV2,10,2))
-	
-			IF  cVenliq > SB0->B0_PRV2+(SB0->B0_PRV2*5)/100
-				lValid:= .F.
-				//         ALERT(STR((SB0->B0_PRV2+(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
-			ENDIF
-	
-			IF cVenliq < SB0->B0_PRV2-(SB0->B0_PRV2*5)/100
-				lValid:= .F.
-				//       ALERT(STR((SB0->B0_PRV2-(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
-			ENDIF
-	
-		ENDIF
-	
-	
-		If !Empty(cBloque)
+	dbSelectArea("SB0")
+	dbSetOrder(1)
+	Dbseek(xFilial("SB0")+cProd)
+	IF FOUND()
+		//          ALERT(str(cVenliq,10,2)+"Normal"+STR(SB0->B0_PRV2,10,2))
+
+		IF  cVenliq > SB0->B0_PRV2+(SB0->B0_PRV2*5)/100
 			lValid:= .F.
-		EndIf
+			//         ALERT(STR((SB0->B0_PRV2+(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
+		ENDIF
+
+		IF cVenliq < SB0->B0_PRV2-(SB0->B0_PRV2*5)/100
+			lValid:= .F.
+			//       ALERT(STR((SB0->B0_PRV2-(SB0->B0_PRV2*5)/100),10,2)+"     "+STR(cVenliq,10,2))
+		ENDIF
+
+	ENDIF
+
+
+	If !Empty(cBloque)
+		lValid:= .F.
 	EndIf
+
 
 
 
@@ -5564,16 +5702,16 @@ static function CalouDe(oUtD,cprod)
 	cCuFMed := POSICIONE("SB2",2,xFilial("SB2")+"01"+cProd,"B2_CFABM")
 
 
- // foi modifica porque estava com os preços zerados
-  /*
-    IF cCuRMed = 0
-       cCuRMed:=cCuRepo2
-    ENDIF
+	// foi modifica porque estava com os preços zerados
+	/*
+	IF cCuRMed = 0
+	cCuRMed:=cCuRepo2
+	ENDIF
 
-    IF cCuFMed = 0
-       cCuFMed := cCustoFa2
-    ENDIF
-*/
+	IF cCuFMed = 0
+	cCuFMed := cCustoFa2
+	ENDIF
+	*/
 
 
 
@@ -5647,7 +5785,7 @@ STATIC FUNCTION FouDesA()
 
 	@ C(005) ,C(005)  SAY   "Valor da Despesa"   OF _oDlgoDA Pixel size C(0200),C(012) FONT oFONT1
 
-	@ C(020) ,C(005) Msget cVadavul PICTURE "@E 999,999.99"  OF _oDlgoDA Pixel size C(070),C(012) FONT oFONT1
+	@ C(020) ,C(005) Msget cVadavul PICTURE "@E 999,999.99"  OF _oDlgoDA HASBUTTON Pixel size C(070),C(012) FONT oFONT1
 
 	@ C(060),C(005) Button "Sair" Size C(037),C(012) PIXEL OF _oDlgoDA ACTION _oDlgoDA:END()
 
@@ -5995,14 +6133,18 @@ Static Function InTraEst(cPtd)
 Return
 
 
-
 Static Function AnalVen()
+
 	Local cProduto:= SB1->B1_COD+" - "+SB1->B1_DESC
-
-
 	Local oProduto
+	
+	lVariavs := .T.
+	
+	Private dDatault 
+	Private oDtUtm
 
 	Private oDlgDig
+	Private oDlgDig1
 	Private oList1
 	Private aList1:= {}
 	Private oList2
@@ -6018,15 +6160,35 @@ Static Function AnalVen()
 	Private oDt1
 	Private oDt2
 
+	Private oTitle
+	Private oTitle2
+
 	Private nPerVar:= 0
 	Private nPerAtc := 0
 	Private nPerPr3 := 0
 	Private cRUNMED := 0
 	Private cRUN := 0
 
+	Private oTFont1 := TFont():New('ARIAL',,-18,.T.)
+
+	#define DS_MODALFRAME   128
+
 	cRUN:= cVenLV - cCuFinalV
 
 	lrec := .t.
+	
+	cDesFil := ""
+
+	dbSelectArea("SM0")
+	dbgotop()
+
+	While SM0->M0_CODIGO == '01' .AND.  SM0->(!Eof())
+		if Alltrim(SM0->M0_CODFIL) = Alltrim(xFilial("SB2"))
+			cDesFil := Alltrim(SM0->M0_CODFIL)+" - "+Alltrim(SM0->M0_CIDENT)
+		endif
+		SM0->(DbSkip())
+	Enddo
+
 
 	DbSelectArea("ZAY")
 	dBSetOrder(1)
@@ -6035,12 +6197,20 @@ Static Function AnalVen()
 
 	While lrec = .t.
 		lrec := .f.
-		DEFINE MSDIALOG oDlgDig TITLE "Analise Venda" FROM C(306),C(297) TO C(755),C(1280) PIXEL
+		DEFINE MSDIALOG oDlgDig TITLE "Analise Venda" FROM C(306),C(297) TO C(755),C(1280) PIXEL STYLE nOR( WS_VISIBLE, WS_POPUP )
+		oDlgDig:lMaximized := .T. //Maximizar a janela
 
-		@ 000,000 FOLDER oFolder1 OF oDlgDig PROMPT "Item",ZAY_DESC  SIZE 630,285 PIXEL
+		@ 005, 025 SAY oTitle PROMPT "Análise Venda" SIZE 164, 010 OF oDlgDig COLORS 0, 16777215 PIXEL
+		@ 005, 150 SAY oTitle2 PROMPT "Loja: "+cValToChar(cDesFil) SIZE 300, 050 OF oDlgDig COLORS 0, 16777215 PIXEL
+		
+		@ 010, 470 SAY oTitle5 PROMPT "Ultima Alteração Atacado" SIZE 164, 010 OF oDlgDig COLORS 0, 16777215 PIXEL
+		@ C(005),C(450) MSGET oDtUtm VAR dDatault SIZE 058, 018 OF oDlgDig COLORS 0, 16777215 HASBUTTON PIXEL  When .F.
 
-		@ C(194),C(450) Button "Confirma" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[1] Action(lMantPr := .f. ,oDlgDig:END())
-		@ C(194),C(410) Button "Histórico" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[1] Action(mctranFil(SZ2->Z2_FILIAL))
+		@ 022,025 FOLDER oFolder1 OF oDlgDig PROMPT "ITEM",ZAY_DESC  SIZE 630,285 PIXEL
+
+		@ C(194),C(365) Button "Outra filial" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[1] Action(ListFil())
+		@ C(194),C(450) Button "Confirma" Size C(033),C(012) PIXEL OF oFolder1:aDialogs[1] Action(lMantPr := .f. ,oDlgDig:END())
+		@ C(194),C(410) Button "Histórico" Size C(033),C(012) PIXEL OF oFolder1:aDialogs[1] Action(mctranFil(SZ2->Z2_FILIAL))
 
 		@ C(007),C(452) Button "Excel" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[2] Action(ExpExc())
 
@@ -6050,42 +6220,42 @@ Static Function AnalVen()
 		@ C(001),C(192)  Say "Data Final" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 
 		@ C(007),C(003) MsGet oProduto Var cProduto Size C(140),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
-		@ C(007),C(145) MsGet oDt1 Var dDt1 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
-		@ C(007),C(192) MsGet oDt2 Var dDt2 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
+		@ C(007),C(145) MsGet oDt1 Var dDt1 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
+		@ C(007),C(192) MsGet oDt2 Var dDt2 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
 
 		@ C(001),C(240)  Say "Qtd Min Atac" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		@ C(001),C(287)  Say "Qtd Min Pr3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		@ C(001),C(335)  Say "MKP Varejo" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 
 
-		@ C(007),C(335) MsGet cMarEst2V Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList2('2'),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-		@ C(007),C(381) MsGet cMarEst2 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList3('2'),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
-		@ C(007),C(428) MsGet vMarPr3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.  Valid(Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+		@ C(007),C(335) MsGet cMarEst2V Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList2('2'),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+		@ C(007),C(381) MsGet cMarEst2 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList3('2'),Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+		@ C(007),C(428) MsGet vMarPr3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.  Valid(Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
 
 
 		@ C(188),C(003)  Say "% Varejo" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		@ C(188),C(050)  Say "% Atacado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		@ C(188),C(097)  Say "% Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 
-		@ C(194),C(003) MsGet nPerVar Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
-		@ C(194),C(050) MsGet nPerAtc Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
-		@ C(194),C(097) MsGet nPerPr3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(003) MsGet nPerVar Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(050) MsGet nPerAtc Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(097) MsGet nPerPr3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
 
-		@ C(188),C(240)  Say "Preço Varejo" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
-		@ C(188),C(287)  Say "Preço Atacado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
-		@ C(188),C(334)  Say "Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(240)  Say "Preço Varejo" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(277)  Say "Preço Atacado" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(314)  Say "Preço 3" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 
-		@ C(194),C(240) MsGet  cVenLV Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
-		@ C(194),C(287) MsGet  cVenLiq Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
-		@ C(194),C(334) MsGet  cVenPR3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(240) MsGet  cVenLV Size C(039),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(277) MsGet  cVenLiq Size C(039),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(314) MsGet  cVenPR3 Size C(039),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
 
 
 
 
 		@ C(001),C(381)  Say "MKP Atacado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		@ C(001),C(428)  Say "MKP Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
-		@ C(007),C(240) MsGet nQtdAt Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (lrec:= .t.,oDlgDig:end())
-		@ C(007),C(287) MsGet nQtdPr Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999" PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.
+		@ C(007),C(240) MsGet nQtdAt Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (lrec:= .t.,oDlgDig:end())
+		@ C(007),C(287) MsGet nQtdPr Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.
 
 
 		@ C(001),C(003)  Say "Produto" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
@@ -6104,17 +6274,16 @@ Static Function AnalVen()
 		@ C(001),C(404) Say "R$ UN Médio" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
 
 
-		@ C(007),C(145) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
-		@ C(007),C(182) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(035),C(009)  COLOR CLR_BLUE PIXEL OF oFolder1:aDialogs[2] WHEN lGerent = .t. VALID (Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.),cRUN:= cVenLV - cCuFinalV)
-		@ C(007),C(219) MsGet cVenLV PICTURE "@E 999,999.99" Size C(035),C(009)  COLOR CLR_RED PIXEL OF oFolder1:aDialogs[2]  WHEN  cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
+		@ C(007),C(145) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(182) MsGet cMarEst2V PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN lGerent = .t. VALID (Vmargem(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.),cRUN:= cVenLV - cCuFinalV)
+		@ C(007),C(219) MsGet cVenLV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oFolder1:aDialogs[2]  WHEN  cCustoFa = 0   &&VALID  VpreV(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
 
-		@ C(007),C(256) MsGet cSuMkVa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
-		@ C(007),C(293) MsGet cSuPrVa PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
-		@ C(007),C(330) MsGet cVAvar PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(256) MsGet cSuMkVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(293) MsGet cSuPrVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(330) MsGet cVAvar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
 
-		@ C(007),C(367) MsGet cRUN PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
-		@ C(007),C(404) MsGet cRUNMED PICTURE "@E 999,999.99" Size C(035),C(009) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
-
+		@ C(007),C(367) MsGet cRUN PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(404) MsGet cRUNMED PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
 
 
 		fList1('1')
@@ -6126,6 +6295,11 @@ Static Function AnalVen()
 		@ C(095),C(240)  Say "Cotações de preço:" Size C(080),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
 		fList5('1')
 
+		oTitle:setFont(oTFont1)
+		oTitle2:setFont(oTFont1)
+		oTitle5:setFont(oTFont1)
+		
+		oTitle2:refresh()
 
 		ACTIVATE MSDIALOG oDlgDig CENTERED
 
@@ -6150,6 +6324,16 @@ Return
 
 Static Function fList1(MV_PAR01)
 
+	if lButton := .T.
+
+		nFill := cFilArray
+
+	else
+
+		nFill := SZ2->Z2_FILIAL
+
+	endif
+
 	aList1:= {}
 
 	nPerVar := 0
@@ -6162,7 +6346,7 @@ Static Function fList1(MV_PAR01)
 	_cQuery2+=" FROM SZN010"
 	_cQuery2+=" LEFT OUTER JOIN SB1010 ON(B1_COD = ZN_PRODUTO"
 	_cQuery2+=" 					  AND SB1010.D_E_L_E_T_ = '')"
-	_cQuery2+=" WHERE ZN_FILIAL = '"+SZ2->Z2_FILIAL+"' "
+	_cQuery2+=" WHERE ZN_FILIAL = '"+Alltrim(nFill)+"' "
 	If Empty(SB1->B1_CFAM)
 		_cQuery2+= "AND   B1_COD = '"+SZ2->Z2_PROD+"' "
 	Else
@@ -6174,6 +6358,7 @@ Static Function fList1(MV_PAR01)
 	nPerVar := TRC->PerVa
 	nPerAtc := TRC->PerAt
 	nPerPr3 := TRC->PerPr3
+
 
 	TRC->(DBCLOSEAREA())
 
@@ -6194,7 +6379,7 @@ Static Function fList1(MV_PAR01)
 		_cQuery2+=" 								AND SB1010.D_E_L_E_T_ = '') "
 		_cQuery2+=" 			LEFT OUTER JOIN SF4010 ON(SD2010.D2_FILIAL = F4_FILIAL "
 		_cQuery2+=" 								AND SD2010.D2_TES    = F4_CODIGO) "
-		_cQuery2+=" 		WHERE D2_FILIAL = '"+SZ2->Z2_FILIAL+"' "
+		_cQuery2+=" 		WHERE D2_FILIAL = '"+Alltrim(nFill)+"' "
 		_cQuery2+=" 		AND   B1_CFAM = '"+SB1->B1_CFAM+"' "
 		_cQuery2+=" 		AND   D2_EMISSAO BETWEEN '"+Dtos(dDt1)+"' AND '"+Dtos(dDt2)+"' "
 		_cQuery2+=" 		AND   F4_OPEMOV IN ('01','05','09','11','03')  "
@@ -6215,7 +6400,7 @@ Static Function fList1(MV_PAR01)
 		_cQuery2+= "					  AND SB1010.D_E_L_E_T_ = '') "
 		_cQuery2+= " LEFT OUTER JOIN SF4010 ON(SD2010.D2_FILIAL = F4_FILIAL "
 		_cQuery2+= "                       AND SD2010.D2_TES    = F4_CODIGO) "
-		_cQuery2+= "WHERE D2_FILIAL = '"+SZ2->Z2_FILIAL+"' "
+		_cQuery2+= "WHERE D2_FILIAL = '"+Alltrim(nFill)+"' "
 		_cQuery2+= "AND   B1_COD = '"+SZ2->Z2_PROD+"' "
 		_cQuery2+= "AND   D2_EMISSAO BETWEEN '"+Dtos(dDt1)+"' AND '"+Dtos(dDt2)+"' "
 		_cQuery2+= "AND   F4_OPEMOV IN ('01','05','09','11','03')  "
@@ -6290,6 +6475,18 @@ Static Function fList1(MV_PAR01)
 Return
 
 Static Function fList2(MV_PAR1)
+
+	if lButton := .T.
+
+		nFill := cFilArray
+
+	else
+
+		nFill := SZ2->Z2_FILIAL
+
+	endif
+
+
 	aCab:={}
 	aList2:={}
 	aadd(aList2,{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0})
@@ -6362,6 +6559,17 @@ Static Function fList2(MV_PAR1)
 Return
 
 Static Function fList5(MV_PAR1)
+
+	if lButton := .T.
+
+		nFill := cFilArray
+
+	else
+
+		nFill := SZ2->Z2_FILIAL
+
+	endif
+
 	aList5:= {}
 
 	_cQuery2:=" SELECT ZP_FILIAL"
@@ -6383,7 +6591,7 @@ Static Function fList5(MV_PAR1)
 	_cQuery2+=" LEFT OUTER JOIN SZO010 ON(ZO_FILIAL = ZP_FILIAL collate database_default"
 	_cQuery2+=" 					  AND ZO_CODIGO  = ZP_CODCO collate database_default"
 	_cQuery2+=" 					  AND SZO010.D_E_L_E_T_ = '')"
-	_cQuery2+=" WHERE ZP_FILIAL = '"+SZ2->Z2_FILIAL+"' "
+	_cQuery2+=" WHERE ZP_FILIAL = '"+Alltrim(nFill)+"' "
 	_cQuery2+=" AND   ((ZP_PRODUTO = '"+SZ2->Z2_PROD+"' AND  B1_CFAM = '') OR (B1_CFAM = '"+SB1->B1_CFAM+"' AND B1_CFAM <> '') OR (B1_BASE3 = '"+SB1->B1_BASE3+"' AND B1_BASE3 <> ''))"
 	_cQuery2+=" AND   SZP010.D_E_L_E_T_ = ''"
 	_cQuery2+=" ORDER BY ZP_DATA DESC"
@@ -6429,6 +6637,18 @@ Return
 
 
 Static Function fList3(MV_PAR1)
+
+	if lButton := .T.
+
+		nFill := cFilArray
+
+	else
+
+		nFill := SZ2->Z2_FILIAL
+
+	endif
+
+
 	aCab:={}
 	aList3:={}
 	aadd(aList3,{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0})
@@ -6518,6 +6738,17 @@ Return
 
 
 Static Function fList4(MV_PAR1)
+
+	if lButton := .T.
+
+		nFill := cFilArray
+
+	else
+
+		nFill := SZ2->Z2_FILIAL
+
+	endif
+
 	aList4:={}
 
 	_cQuery2:= " SELECT B1_COD"
@@ -6552,7 +6783,7 @@ Static Function fList4(MV_PAR1)
 	_cQuery2+= " 					  AND SB2010.D_E_L_E_T_ = '')"
 	_cQuery2+= " LEFT OUTER JOIN SZ7010 ON(B1_MARCA = Z7_COD"
 	_cQuery2+= " 					  AND SZ7010.D_E_L_E_T_ = '')"
-	_cQuery2+= " WHERE ZN_FILIAL = '"+SZ2->Z2_FILIAL+"' "
+	_cQuery2+= " WHERE ZN_FILIAL = '"+Alltrim(nFill)+"' "
 	_cQuery2+= " AND   ZN_DATA >= '"+DTOS(DATE()-30)+"'"
 	_cQuery2+= " AND   B1_FLAGSUG <> '2' "
 	_cQuery2+= " AND   B1_MSBLQL <> '1' "
@@ -6578,10 +6809,12 @@ Static Function fList4(MV_PAR1)
 	_cQuery2+= " 			WHEN '3' THEN 'PREMIO'"
 	_cQuery2+= " 		END"
 	_cQuery2+= " 		,B0_LUCMCAT"
+	_cQuery2+= " 		,B0_DTALTAT"
 	_cQuery2+= " ORDER BY 14 DESC"
 	dbUseArea(.T.,"TOPCONN",TcGenQry(,,_cQuery2),"TRC",.T.,.T.)
 
 	nTVen:= 0
+
 	cRUNMED:= TRC->LUC_MED_CAT
 	dbSelectArea('TRC')
 	TRC->(dbGoTop())
@@ -6657,6 +6890,8 @@ Return
 
 
 Static Function mctranFil(mv_par01)
+
+	
 	// Variaveis Locais da Funcao
 	Private _cCod2 := SZ2->Z2_PROD
 	Private _cCod :=  SZ2->Z2_PROD
@@ -6749,7 +6984,7 @@ Static Function Aba1(_cCod,PR01,PR05,PR04)
 	// u_LinkEst()
 
 	U_fGrafDiar(PR01,_cCod,TITULO,PR05,cESTMIN)
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6770,7 +7005,7 @@ Static Function Aba2(_cCod,PR01,PR05)
 	// u_LinkEst()
 
 	U_fGrafMes(PR01,_cCod,TITULO,PR05,cCOB,cSUG)
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6785,7 +7020,7 @@ Static Function Aba3(_cCod,PR01,PR05)
 	//u_LinkEst()
 
 	U_fGraRent(PR01,_cCod,TITULO)
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6828,7 +7063,7 @@ Static Function Aba4(_cCod,PR01,PR05)
 	Else
 		TRC->(DBCLOSEAREA())
 	EndIF
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6849,7 +7084,7 @@ Static Function Aba6(_cCod,PR01,PR05)
 	// u_LinkEst()
 
 	U_fGrafvlr(PR01,_cCod,TITULO)
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6890,7 +7125,7 @@ Static Function Aba7(_cCod,PR01,PR05)
 	Else
 		TRC->(DBCLOSEAREA())
 	EndIF
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -6904,7 +7139,7 @@ Static Function Aba8(_cCod,PR01,PR05)
 	//u_LinkEst()
 
 	U_fGraReMe(PR01,_cCod,TITULO)
-	//	@ C(002),C(009) MsGet oTESTE Var cTESTE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
+	//	@ C(002),C(009) MsGet oTESTE Var cFilArrayE PICTURE "@E 999,999.99" Size C(036),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1]
 	//tcSetConn(nHErp)
 
 
@@ -7431,5 +7666,1079 @@ Static Function CON2(cANOMES,cCOD,cFILIAL,vTIPO)
 
 	TRA->(DBCLOSEAREA())
 
+return vRE
 
-return vRET
+
+static Function ListFil()   
+
+	Private oButton1
+	Private oListBox1
+	Private aListBox1 := {}
+	Private oSay1
+
+	Private oTFont1 := TFont():New('ARIAL',,-14,.T.)
+
+	Private oDlg8
+
+	DEFINE MSDIALOG oDlg8 TITLE "Filais" FROM 000, 000  TO 300, 600 COLORS 0, 16777215 PIXEL
+
+	@ 007, 007 SAY oSay1 PROMPT "Selecione qual a filial que deseja classificar " SIZE 164, 007 OF oDlg8 COLORS 0, 16777215 PIXEL
+
+	ArraFil()
+
+	@ 130, 251 BUTTON oButton1 PROMPT "Fechar" SIZE 037, 012 OF oDlg8 PIXEL ACTION(oDlg8:end())
+
+	oSay1:setFont(oTFont1)
+
+	ACTIVATE MSDIALOG oDlg8 CENTERED
+
+Return
+
+
+static function ArraFil()
+	
+	lVariavs = .T.
+	
+	aListBox1 := {}
+
+	@ 024, 007 LISTBOX oListBox1 Fields ;
+	HEADER " FILIAL ","NOME"," CNPJ ";
+	Size 290, 095 Of oDlg8 Pixel;
+	ColSizes 15,35,30
+
+	dbselectarea("SM0")
+	dbgotop()
+
+	nFil := xFilial("SB2")
+
+	While SM0->M0_CODIGO == '01' .AND.  SM0->(!Eof())
+
+		if SM0->M0_CODFIL <> Alltrim(nFil) .AND. !EMPTY(Alltrim(SM0->M0_CGC))
+			AADD(aListBox1,{SM0->M0_CODFIL, SM0->M0_NOMECOM, SM0->M0_CGC})
+		endif
+		SM0->(DbSkip())
+		
+	Enddo
+
+	oListBox1:SetArray(aListBox1)
+
+	oListBox1:bLDblClick := {|| AnalVenL2(ALLTRIM(aListBox1[oListBox1:nAT,01]))} 				//ativa duplo clique na linha do listbox
+	//oListBox1:bKeyDown:={|nKey|IF(nKey==VK_RETURN, oDlg8:End(), AnalVenL2(aListBox1[oListBox1:nAT,01]),nil)}  //ativa ENTER clique na linha do listbox
+
+
+	oListBox1:bLine := {|| {;
+	aListBox1[oListBox1:nAT,01],;
+	aListBox1[oListBox1:nAT,02],;
+	aListBox1[oListBox1:nAT,03]}}
+
+	oListBox1:Refresh()
+
+Return
+
+
+Static Function AnalVenL2(cFilArray)
+
+	Local cProduto:= SB1->B1_COD+" - "+SB1->B1_DESC
+	Local oProduto
+
+	IF lVariavs = .T.
+	
+		Private cDesFil_   := cDesFil
+		Private dDatault_  := dDatault
+		Private cMarEst2V_ := cMarEst2V
+		Private cMarEst2_  := cMarEst2
+		Private vMarPr3_   := vMarPr3
+		Private nPerVar_   := nPerVar
+		Private nPerAtc_   := nPerAtc
+		Private nPerPr3_   := nPerPr3
+		Private cVenLV_    := cVenLV
+		Private cVenLiq_   := cVenLiq
+		Private cVenPR3_   := cVenPR3
+		Private nQtdAt_    := nQtdAt
+		Private nQtdPr_    := nQtdPr
+		Private cCuFinalV_ := cCuFinalV
+		Private cMarEst2V_ := cMarEst2V
+		Private cVenLV_    := cVenLV
+		Private cSuMkVa_   := cSuMkVa
+		Private cSuPrVa_   := cSuPrVa
+		Private cVAvar_    := cVAvar
+		Private cRUN_      := cRUN
+		Private cRUNMED_   := cRUNMED
+		
+		private cMarEst_   := cMarEst
+		private cVAtac_    := cVAtac
+		Private cVAvar_    := cVAvar
+		Private cVAPR3_    := cVAPR3
+		Private cPerV_     := cPerV
+		Private vMarPr3_   := vMarPr3
+		Private cRenMed_   := cRenMed
+		Private nQtdAt_    := nQtdAt
+		Private nQtdPr_    := nQtdPr
+		
+	ENDIF
+
+	Private dDatault 
+	Private oDtUtm
+
+	Private nFill := cFilArray    
+	Private lButton := .T.
+	
+	#define DS_MODALFRAME   128
+
+	cMarEst2V := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PVENDA")	
+	cMarEst := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_MARESP")
+	vMarPr3 := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_MKPPR3")
+	cPerV   := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PVENDA")
+	cVAtac  := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PRV2")
+	cVAvar  := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PRV1")
+	cVAPR3  := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PRV6")
+	cPerV   := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_PVENDA")
+	cRenMed := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_LUCMCAT")
+	nQtdAt  := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_QTD2")
+	nQtdPr  := POSICIONE("SB0",1,Alltrim(nFill)+SB1->B1_COD,"B0_QTDPR3")
+	
+	cMarEst2 := cMarEst
+	
+	Private oDlgDig20
+	Private oList1
+	Private aList1:= {}
+	Private oList2
+	Private aList2:= {}
+	Private oList3
+	Private aList3:= {}
+	Private oList4
+	Private aList4:= {}
+	Private oList5
+	Private aList5:= {}
+	Private dDt1:= date()- 30
+	Private dDt2:= date()- 1
+	Private oDt1
+	Private oDt2
+
+	Private oTitle3
+	Private oTitle4
+	Private oTitle5
+
+	Private nPerVar:= 0
+	Private nPerAtc := 0
+	Private nPerPr3 := 0
+	Private cRUNMED := 0
+	Private cRUN := 0
+
+	Private oTFont1 := TFont():New('ARIAL',,-18,.T.)
+
+	cRUN:= cVenLV - cCuFinalV
+
+	lrec := .t.
+	
+	_cQuery:=" SELECT B0_DTALTAT "
+	_cQuery+=" FROM SB0010"
+	_cQuery+=" WHERE B0_FILIAL = '"+Alltrim(nFill)+"' "
+	_cQuery+=" AND   B0_COD IN("+SB1->B1_COD+")"
+	_cQuery+=" AND   D_E_L_E_T_ = ''	"
+	dbUseArea(.T.,"TOPCONN",TcGenQry(,,_cQuery),"TMP4",.T.,.T.)
+
+		dDatault := STOD(TMP4->B0_DTALTAT)
+
+	TMP4->(DBCLOSEAREA())
+
+	dbSelectArea("SM0")
+	dbgotop()
+
+	While SM0->M0_CODIGO == '01' .AND.  SM0->(!Eof())
+		if Alltrim(SM0->M0_CODFIL) = Alltrim(nFill)
+			cDesFil := Alltrim(SM0->M0_CODFIL)+" - "+Alltrim(SM0->M0_CIDENT)
+		endif
+		SM0->(DbSkip())
+	Enddo
+
+	Private nFill2 := nFill
+
+	DbSelectArea("ZAY")
+	dBSetOrder(1)
+	//DbSeek(Alltrim(nFill)+SB1->B1_CATEG+SB1->B1_GRUCAT+SB1->B1_DEPTO+SB1->B1_SECAO+SB1->B1_SUBSE)
+	DbSeek(xFilial("ZAY")+SB1->B1_CATEG+SB1->B1_GRUCAT+SB1->B1_DEPTO+SB1->B1_SECAO+SB1->B1_SUBSE)
+
+	
+	While lrec = .t.
+		lrec := .f.
+		DEFINE MSDIALOG oDlgDig20 TITLE "Analise Venda" FROM C(306),C(297) TO C(755),C(1280) PIXEL STYLE nOR( WS_VISIBLE, WS_POPUP )
+		oDlgDig20:lEscClose := .F. 
+		oDlgDig20:lMaximized := .T. //Maximizar a janela										  
+
+		@ 005, 025 SAY oTitle3 PROMPT "Análise Venda" SIZE 164, 010 OF oDlgDig20 COLORS 0, 16777215 PIXEL
+		@ 005, 150 SAY oTitle4 PROMPT "Loja: "+cValToChar(cDesFil) SIZE 300, 050 SIZE 164, 010 OF oDlgDig20 COLORS 0, 16777215 PIXEL
+
+		@ 010, 470 SAY oTitle5 PROMPT "Ultima Alteração Atacado" SIZE 164, 010 OF oDlgDig20 COLORS 0, 16777215 PIXEL
+		@ C(005),C(450) MSGET oDtUtm VAR dDatault SIZE 058, 018 OF oDlgDig20 COLORS 0, 16777215 HASBUTTON PIXEL  When .F.
+
+		@ 022,025 FOLDER oFolder1 OF oDlgDig20 PROMPT "ITEM",ZAY->ZAY_DESC  SIZE 630,285 PIXEL
+		
+		@ C(194),C(380) Button "Sair" Size C(027),C(012) PIXEL OF oFolder1:aDialogs[1] Action(SAIRFIL())
+		@ C(194),C(450) Button "Confirma" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[1] Action(SAVEFIL())
+		@ C(194),C(410) Button "Histórico" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[1] Action(mctranFil(Alltrim(nFill)))
+
+		@ C(005),C(452) Button "Excel" Size C(037),C(012) PIXEL OF oFolder1:aDialogs[2] Action(ExpExc())
+
+
+		@ C(001),C(003)  Say "Produto" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(001),C(145)  Say "Data Inicial" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(001),C(192)  Say "Data Final" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+
+		@ C(007),C(003) MsGet oProduto Var cProduto Size C(140),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(007),C(145) MsGet oDt1 Var dDt1 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
+		@ C(007),C(192) MsGet oDt2 Var dDt2 Size C(45),C(009) COLOR CLR_BLACK Picture "@!" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid fList1('2')
+
+		@ C(001),C(240)  Say "Qtd Min Atac" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(001),C(287)  Say "Qtd Min Pr3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(001),C(335)  Say "MKP Varejo" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+
+
+		@ C(007),C(335) MsGet oCorget1 VAR cMarEst2V Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList2('2'),Vmargem2(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+		@ C(007),C(381) MsGet oCorget2 VAR cMarEst2 Size C(045),C(009) COLOR CLR_BLACK Picture  "@E 999,999.99"  HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (fList3('2'),Vmargem2(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+		@ C(007),C(428) MsGet oCorget3 VAR vMarPr3 Size C(045),C(009) COLOR CLR_BLACK Picture  "@E 999,999.99"  HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.  Valid(Vmargem2(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.))
+
+
+		@ C(188),C(003)  Say "% Varejo" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(050)  Say "% Atacado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(097)  Say "% Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+
+		@ C(194),C(003) MsGet nPerVar Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(050) MsGet nPerAtc Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(097) MsGet nPerPr3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+
+		lChecBox1 := .T.   
+		
+		@ C(194),C(209) CheckBox oChecBox1  Var lChecBox1  Prompt "" Size C(101),C(008) PIXEL OF oFolder1:aDialogs[1] 
+		@ C(194),C(215)  Say "Atualizar" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(200),C(215)  Say "Preços" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(240)  Say "Preço Varejo" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(287)  Say "Preço Atacado" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(188),C(334)  Say "Preço 3" Size C(040),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+
+		@ C(194),C(240) MsGet cVenLV Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(287) MsGet cVenLiq Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+		@ C(194),C(334) MsGet cVenPR3 Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN cCustoFa = 0
+
+
+
+
+		@ C(001),C(381)  Say "MKP Atacado" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(001),C(428)  Say "MKP Preço 3" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		@ C(007),C(240) MsGet nQtdAt Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t. Valid (lrec:= .t.,oDlgDig20:end())
+		@ C(007),C(287) MsGet nQtdPr Size C(045),C(009) COLOR CLR_BLACK Picture "@E 999,999.99" HASBUTTON PIXEL OF oFolder1:aDialogs[1] WHEN lGerent = .t.
+
+
+		@ C(001),C(003)  Say "Produto" Size C(045),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+		@ C(007),C(003) MsGet oProduto Var cProduto Size C(140),C(009) COLOR CLR_BLACK Picture "@!" PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+
+
+		@ C(001),C(145) Say "Custo Final" Size C(025),C(008) COLOR CLR_RED PIXEL OF oFolder1:aDialogs[2]
+		@ C(001),C(182) Say "Margem Liquida" Size C(055),C(008) COLOR CLR_BLUE PIXEL OF oFolder1:aDialogs[2]
+		@ C(001),C(219) Say "Preço de Varejo" Size C(055),C(008) COLOR CLR_RED PIXEL OF oFolder1:aDialogs[2]
+
+		@ C(001),C(256) Say "Sug MKP Varejo" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+		@ C(001),C(293) Say "Sug Preço Varejo" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+		@ C(001),C(330) Say "Tabela Anterior" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+
+		@ C(001),C(367) Say "R$ UN" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+		@ C(001),C(404) Say "R$ UN Médio" Size C(065),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[2]
+
+
+		@ C(007),C(145) MsGet cCuFinalV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(182) MsGet oCorget1 VAR cMarEst2V PICTURE "@E 9,999.99" Size C(039),C(009)  COLOR CLR_BLUE HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN lGerent = .t. VALID (Vmargem2(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.),cRUN:= cVenLV - cCuFinalV)
+		@ C(007),C(219) MsGet cVenLV PICTURE "@E 999,999.99" Size C(039),C(009)  COLOR CLR_RED HASBUTTON PIXEL OF oFolder1:aDialogs[2]  WHEN  cCustoFa = 0   &&VALID  VpreV2(cMarEst2,cMarMin,cMarMax,cMarEst,cVenLiq)
+
+		@ C(007),C(256) MsGet cSuMkVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(293) MsGet cSuPrVa PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(330) MsGet cVAvar PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+
+		@ C(007),C(367) MsGet cRUN PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+		@ C(007),C(404) MsGet cRUNMED PICTURE "@E 999,999.99" Size C(039),C(009) COLOR CLR_BLACK HASBUTTON PIXEL OF oFolder1:aDialogs[2] WHEN cCustoFa = 0
+
+		dDataDia := LEFT(DTOS(DATE()),6)
+	
+		dbSelectArea("ZA9")
+		dbSetOrder(2)
+		dbseek(Alltrim(nFill2)+cValToChar(dDataDia)+SB1->B1_COD)
+
+			cMetaFL1 := ZA9->ZA9_MGMVAR //META VAREJO
+			cMetaFL2 := ZA9->ZA9_MGMATC //META ATACADO
+			cMetaFL3 := ZA9->ZA9_MGMPR3 //META PREÇO 3
+
+		dbSelectArea("ZA9")	
+
+		//ALTERA COR GET
+		IF cMarEst2V < cMetaFL1
+			oCorget1:setcss(cBgAtec)
+		ENDIF
+		IF cMarEst2V >= cMetaFL1 .AND. cMarEst2V < (cMetaFL1*120)/100
+			oCorget1:setcss(cBgVerd)
+		ENDIF
+		IF cMarEst2V > (cMetaFL1*120)/100
+			oCorget1:setcss(cBgAzul)
+		ENDIF
+
+
+		//ALTERA COR 
+		IF cMarEst2 < cMetaFL2
+			oCorget2:setcss(cBgAtec)
+		ENDIF
+		IF cMarEst2 >= cMetaFL2 .AND. cMarEst2 < (cMetaFL2*120)/100
+			oCorget2:setcss(cBgVerd)
+		ENDIF
+		IF cMarEst2 > (cMetaFL2*120)/100
+			oCorget2:setcss(cBgAzul)
+		ENDIF
+		
+		
+		//ALTERA COR 
+		IF vMarPr3 < cMetaFL3
+			oCorget3:setcss(cBgAtec)
+		ENDIF
+		IF vMarPr3 >= cMetaFL3 .AND. vMarPr3 < (cMetaFL3*120)/100
+			oCorget3:setcss(cBgVerd)
+		ENDIF
+		IF vMarPr3 > (cMetaFL3*120)/100
+			oCorget3:setcss(cBgAzul)
+		ENDIF
+
+		fList1('1')
+		@ C(018),C(240)  Say "Tabela sugestão MKP atacado:" Size C(080),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		fList2('1')
+		@ C(056),C(240)  Say "Tabela sugestão MKP preço 3:" Size C(080),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		fList3('1')
+		fList4('1')
+		@ C(095),C(240)  Say "Cotações de preço:" Size C(080),C(008) COLOR CLR_BLACK PIXEL OF oFolder1:aDialogs[1]
+		fList5('1')
+
+		oTitle3:setFont(oTFont1)
+		oTitle4:setFont(oTFont1)
+		oTitle5:setFont(oTFont1)
+		
+		oTitle4:refresh()
+
+		ACTIVATE MSDIALOG oDlgDig20 CENTERED
+		 
+	End
+
+	If lVisuali = .f.
+		Vmargem2(cMarEst2,cMarMin,cMarMax,cMarEst,cCustoFa,cCustoFa+cRfrete,cPPisC,cPCONFC,cPicmsC,cAicmD,cCuRepo,cPPisD,cPCONFD,vMarPr3,.f.)
+	EndIf
+	
+	
+Return 
+
+STATIC FUNCTION SAIRFIL()
+	
+		IF lVariavs = .T.
+
+		 cDesFil   := cDesFil_   
+		 dDatault  := dDatault_  
+		 cMarEst2V := cMarEst2V_ 
+		 cMarEst2  := cMarEst2_  
+		 vMarPr3   := vMarPr3_   
+		 nPerVar   := nPerVar_   
+		 nPerAtc   := nPerAtc_   
+		 nPerPr3   := nPerPr3_   
+		 cVenLV    := cVenLV_    
+		 cVenLiq   := cVenLiq_   
+		 cVenPR3   := cVenPR3_   
+		 nQtdAt    := nQtdAt_    
+		 nQtdPr    := nQtdPr_    
+		 cCuFinalV := cCuFinalV_ 
+		 cMarEst2V := cMarEst2V_ 
+		 cVenLV    := cVenLV_    
+		 cSuMkVa   := cSuMkVa_   
+		 cSuPrVa   := cSuPrVa_   
+		 cVAvar    := cVAvar_    
+		 cRUN      := cRUN_      
+		 cRUNMED   := cRUNMED_  
+		 
+	     cMarEst  := cMarEst_ 
+	     cVAtac   := cVAtac_  
+	     cVAvar   := cVAvar_  
+	     cVAPR3   := cVAPR3_  
+	     cPerV    := cPerV_   
+	     vMarPr3  := vMarPr3_ 
+	     cRenMed  := cRenMed_ 
+	     nQtdAt   := nQtdAt_  
+	     nQtdPr   := nQtdPr_  
+	     
+	     lVariavs = .F.
+	 
+	ENDIF
+
+	 oDlgDig20:End()
+	 oDlg8:End()
+	 
+RETURN
+
+
+STATIC FUNCTION SAVEFIL()
+
+	IF lChecBox1 = .T.
+			
+		IF MsgYesNo("TEM CERTEZA QUE DESEJA ATUALIZAR OS PREÇOS?","ATENÇÃO")
+	
+			Query:=" UPDATE SB0010 SET B0_PVENDA = "+cValToChar(cMarEst2V)+" "
+			Query+="                  ,B0_MARESP = "+cValToChar(cMarEst2)+" "
+			Query+="                  ,B0_MKPPR3 = "+cValToChar(vMarPr3)+" "
+			Query+="                  ,B0_QTD2 =   "+cValToChar(nQtdAt)+" "
+			Query+="                  ,B0_QTDPR3 = "+cValToChar(nQtdPr)+"  "
+			Query+="                  ,B0_PRV1 = "+cValToChar(round(cVenLV,2))+"  "
+			Query+="                  ,B0_PRV2 = "+cValToChar(round(cVenLiq,2))+"  "
+			Query+="                  ,B0_PRV6 = "+cValToChar(round(cVenPR3,2))+"  "
+			Query+="                  ,B0_ALTERA = "+Dtos(DATE())+"  "
+			Query+="                  ,B0_DTALTAT = CASE WHEN B0_QTD2 = "+cValToChar(nQtdAt)+" "
+			Query+="	                                    THEN CASE WHEN B0_QTDPR3 = "+cValToChar(nQtdPr)+" "
+			Query+="			                                      THEN B0_DTALTAT"
+			Query+="			                                      ELSE '"+DTOS(DATE())+"'"
+			Query+="		                                     END"
+			Query+="	                                    ELSE  '"+DTOS(DATE())+"'"
+			Query+="                                END
+			Query+=" WHERE B0_FILIAL = '"+Alltrim(nFill2)+"'"
+			Query+=" AND   B0_COD = '"+SB1->B1_COD+"'"
+
+			If (TCSQLExec(Query) < 0)
+				Return MsgStop("TCSQLError() " + TCSQLError())
+			Else
+				MSGINFO("REGISTROS ATUALIZADOS COM SUCESSOS! ")
+				oDlgDig20:End()
+			EndIf
+	
+		ELSE
+
+			return nil
+	
+		ENDIF
+		
+		lChecBox1 = .F.
+		
+	ELSE
+		
+		Query:=" UPDATE SB0010 SET B0_PVENDA = "+cValToChar(cMarEst2V)+" "
+		Query+="                  ,B0_MARESP = "+cValToChar(cMarEst2)+" "
+		Query+="                  ,B0_MKPPR3 = "+cValToChar(vMarPr3)+" "
+		Query+="                  ,B0_QTD2 =   "+cValToChar(nQtdAt)+" "
+		Query+="                  ,B0_QTDPR3 = "+cValToChar(nQtdPr)+"  "
+		Query+="                  ,B0_DTALTAT = CASE WHEN B0_QTD2 = "+cValToChar(nQtdAt)+" "
+		Query+="	                                    THEN CASE WHEN B0_QTDPR3 = "+cValToChar(nQtdPr)+" "
+		Query+="			                                      THEN B0_DTALTAT"
+		Query+="			                                      ELSE '"+DTOS(DATE())+"'"
+		Query+="		                                     END"
+		Query+="	                                    ELSE  '"+DTOS(DATE())+"'"
+		Query+="                                END
+		Query+=" WHERE B0_FILIAL = '"+Alltrim(nFill2)+"'"
+		Query+=" AND   B0_COD = '"+SB1->B1_COD+"'"
+
+		If (TCSQLExec(Query) < 0)
+			Return MsgStop("TCSQLError() " + TCSQLError())
+		Else
+			MSGINFO("REGISTROS ATUALIZADOS COM SUCESSOS... 2")
+			oDlgDig20:End()
+		EndIf
+			
+	ENDIF
+	
+		IF lVariavs = .T.
+
+		 cDesFil   := cDesFil_   
+		 dDatault  := dDatault_  
+		 cMarEst2V := cMarEst2V_ 
+		 cMarEst2  := cMarEst2_  
+		 vMarPr3   := vMarPr3_   
+		 nPerVar   := nPerVar_   
+		 nPerAtc   := nPerAtc_   
+		 nPerPr3   := nPerPr3_   
+		 cVenLV    := cVenLV_    
+		 cVenLiq   := cVenLiq_   
+		 cVenPR3   := cVenPR3_   
+		 nQtdAt    := nQtdAt_    
+		 nQtdPr    := nQtdPr_    
+		 cCuFinalV := cCuFinalV_ 
+		 cMarEst2V := cMarEst2V_ 
+		 cVenLV    := cVenLV_    
+		 cSuMkVa   := cSuMkVa_   
+		 cSuPrVa   := cSuPrVa_   
+		 cVAvar    := cVAvar_    
+		 cRUN      := cRUN_      
+		 cRUNMED   := cRUNMED_  
+		 
+	     cMarEst  := cMarEst_ 
+	     cVAtac   := cVAtac_  
+	     cVAvar   := cVAvar_  
+	     cVAPR3   := cVAPR3_  
+	     cPerV    := cPerV_   
+	     vMarPr3  := vMarPr3_ 
+	     cRenMed  := cRenMed_ 
+	     nQtdAt   := nQtdAt_  
+	     nQtdPr   := nQtdPr_  
+	     
+	     lVariavs = .F.
+	 
+	ENDIF
+	
+RETURN
+
+
+STATIC FUNCTION Vmargem2(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,CONFD,cMarPr3,cAut)
+	cBloque:= ''
+	cReviso:= ''
+	If (SB0->B0_PARATA + SB0->B0_PARPR3) < 10 .AND. DATE() - SB0->B0_DTALTAT > 90 .and. nQtdAt > 2 .AND. nQtdAt >= SB0->B0_QTD2
+		cBloque+="|D" // bloqueio por quantidade minima de participação de atacado na venda
+
+	EndIf
+
+
+
+	cSuMk3:= 0
+	cSuPr3:= 0
+	cSuPrVa:= 0
+	cSuMkVa:= 0
+	cSuMkAt:= 0
+	cSuPrAt:= 0
+
+
+	nGdAli:= ICMD
+
+	ICMD:= ICMD - cCrdPre
+
+	Mest2:=Mest2/100
+	//Mmin:=Mmin/100
+	//Mmax:=Mmax/100
+	Mmin:=Mest2
+	Mmax:=Mest2
+	Mest:=Mest/100
+	PISC:=PISC/100
+	CONFC:=CONFC/100
+	PISD:=PISD/100
+	CONFD:=CONFD/100
+	ICM:=ICM/100
+	ICMD:=ICMD/100
+	CIND:=GETMV("MV_CUSTIND")/100
+	cPerTran := GETMV("MV_PERTRAN")/100
+
+
+
+
+
+	If SD1->D1_CLASFIS = '040'
+		ICM  := 0
+		ICMD := 0
+	EndIf
+
+	//if  mMarEAL <> cmarest
+	IF Mest2<Mmin
+		Alert("Margem Menor que a Minima "+STR(Mmin*100,5,2))
+		cMarEst2 := Mest
+		RETURN .F.
+	ENDIF
+
+	IF Mest2>Mmax
+		Alert("Margem Maior que a Maxima "+STR(Mmax*100,5,2))
+		cMarEst2 := Mest
+		RETURN .F.
+	ENDIF
+	//endif
+
+	// P -  cVenLiq = preço de venda
+	// M -  Mest2 = margem
+	// F - CC     = Custo Fabrica
+	// R - CF     = Custo fabrica + Frete
+	// D - Cre     = custo reposição
+	// X - PISC    = Aliquota PIS CREDITO
+	// Y - CONFC   = Aliquota Cofins CREDITO
+	// t - PISD    = Aliquota PIS DEBIT
+	// w - CONFD   = Aliquota Cofins DEBITO
+
+	// A - ICM    = aliquota ICMS credito
+	// Z - ICMD   = aliquota icms debito
+
+
+	nIdTra:= nIdTra/100
+
+	If nIdTra = 0
+		InTraProd(SZ2->Z2_PROD)
+	EndIf
+
+	If nIdTra > 0.08
+		InTraFab(SB1->B1_FABR)
+	Endif
+
+	If  nIdTra > 0.08
+		InTraEst(SZ2->Z2_PROD)
+	EndIf
+
+
+
+	// CALCULA PRECO DE VAREJO
+	cPerV1:= cMarEst2V/100
+
+	cMrPar:= cPerV1 // margem parametro para calculo
+	cMrgCal:= 0 // margem calculada entre preco de venda e custo final
+	nVlrAju:= 0
+	lOk:= .f.
+	WHILE lOk = .f.
+
+		// Calculo do Preco Varejo
+
+		cVenLV :=   (( ( 1/(1 - cPerV1))*cre  ) - (  ( 1/(1 - cPerV1))*((cf-(cVboni/cVquant))*pisc)  ) - (  ( 1/(1 - cPerV1))*((cf-(cVboni/cVquant))*confc)  ) - (  ( 1/(1 - cPerV1))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerV1))*pisd)   -   ((1/(1 - cPerV1))*confd)   -   ((1/(1 - cPerV1))*icmd) - ((1/(1 - cPerV1))*CIND) - ((1/(1 - cPerV1))*nIdTra) )
+
+
+		cCuFinalV:= Cre + (cVenLV*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenLV*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenLV*ICMD) - (CC *ICM) + (cVenLV*CIND) + (cVenLV*nIdTra)
+
+		cMrgCal:= ((round(cVenLV,2) - round(cCuFinalV,2))/ round(cVenLV,2))
+
+		If cMrPar > cMrgCal
+			nVlrAju:= 0.001
+			cPerV1+= nVlrAju
+		Else
+			lOk:= .t.
+		EndIf
+
+	Enddo
+	cPerV1:= cMrPar
+
+	cVenLV:= Round(cVenLV,2)
+	cVarVlr := TRANSFORM(cVenLV ,"@E 999,999.99")
+
+	cUltDig:= substr(cVarVlr,Len(cVarVlr),1)
+	If cUltDig = "0"
+		cVenLV-= 0.01
+	ElseIf cUltDig = "9"
+
+	ElseIf cUltDig = "8"
+		cVenLV+= 0.01
+	Else
+		cVenLV+= 0.02
+	Endif
+
+	// verifica se o custo baixo conforme paramentro estipulado no cadastro de subsecao tabela ZAW
+	If 1-(cCustoFa2/ cCuAntF) > 0 .and.  1-(cCustoFa2/ cCuAntF) <= nPerManPr .and. cVenLV <= cVAvar .and.  lMantPr = .T.
+
+		cVenLV := cVAvar
+
+		cPerV1 := ( cVenLV - (Cre + (cVenLV*PISD) - ((cf-(cVboni/cVquant)) * PISC) + (cVenLV*CONFD) - ((cf-(cVboni/cVquant))*CONFC) + (cVenLV*ICMD) - (CC*ICM) + (cVenLV*CIND) + (cVenLV*nIdTra) ) ) / cVenLV
+
+		cCuFinalV:= Cre + (cVenLV*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenLV*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenLV*ICMD) - (CC *ICM) + (cVenLV*CIND) + (cVenLV*nIdTra)
+		//cPerV := cPerV1
+
+
+	EndIf
+
+	cVarVlr := TRANSFORM(Round(cVenLV,2) ,"@E 999,999.99")
+
+	cIndTrV:= cVenLV * nIdTra
+
+
+
+	cICMTRIV := (cVenLV*ICMD) - (CC *ICM)
+	cCOFINSV := (cVenLV*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
+	cPISV := (cVenLV*PISC) - ((cf-(cVboni/cVquant))*PISD)
+
+	cVenLAN:= round(cVenLiq,2)
+
+	// verifica se a entrega de rentabilidade em R$ de cada unidade esta abaixo de 80% da media da categoria, se estiver calcula sugestão
+	If round((cVenLV - cCuFinalV),2) < round((cRenMed * 0.90),2)
+
+		cBloque+="|A" // A rentabilidade liquida menor que 80% da rentabilidade media da categoria por unidade
+
+		cVlrLuc:= cRenMed * 0.90
+
+		cSuPrVa = (cVlrLuc + Cre - ((cf-(cVboni/cVquant)) * PISC) - ((cf-(cVboni/cVquant))*CONFC) - (CC*ICM))/(1 - (PISD + ICMD + CIND + nIdTra + CONFD))
+
+		cSuMkVa:= round((cVlrLuc/cSuPrVa*100),2)
+
+	Endif
+
+
+
+	// CALCULA PRECO DE ATACADO FRACIONADO
+
+
+	cMrPar:= Mest2 // margem parametro para calculo
+	cMrgCal:= 0 // margem calculada entre preco de venda e custo final
+	nVlrAju:= 0
+	lOk:= .f.
+	WHILE lOk = .f.
+
+
+
+		// inserido calculo abaixo com indece de transferencia
+		cVenLiq :=   (( ( 1/(1 - Mest2))*cre  ) - (  ( 1/(1 - Mest2))*((cf-(cVboni/cVquant))*pisc)  ) - (  ( 1/(1 - Mest2))*((cf-(cVboni/cVquant))*confc)  ) - (  ( 1/(1 - Mest2))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - Mest2))*pisd)   -   ((1/(1 - Mest2))*confd)   -   ((1/(1 - Mest2))*icmd) - ((1/(1 - Mest2))*CIND) - ((1/(1 - Mest2))*nIdTra) )
+
+
+		cCuFinal:= Cre + (cVenLiq*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenLiq*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenLiq*ICMD) - (CC *ICM) + (cVenLiq*CIND) + (cVenLiq*nIdTra)
+
+		cMrgCal:= ((round(cVenLiq,2) - round(cCuFinal,2))/ round(cVenLiq,2))
+
+		If cMrPar > cMrgCal
+			nVlrAju:= 0.001
+			Mest2+= nVlrAju
+		Else
+			lOk:= .t.
+		EndIf
+
+	Enddo
+	Mest2:= cMrPar
+
+	cVenLiq:= Round(cVenLiq,2)
+	cVarVlr := TRANSFORM(cVenLiq ,"@E 999,999.99")
+
+
+	cUltDig:= substr(cVarVlr,Len(cVarVlr),1)
+	If cUltDig = "0"
+		cVenLiq-= 0.01
+	ElseIf cUltDig = "9"
+
+	ElseIf cUltDig = "8"
+		cVenLiq+= 0.01
+	Else
+		cVenLiq+= 0.02
+	Endif
+
+	// verifica se o custo baixo conforme paramentro estipulado no cadastro de subsecao tabela ZAW
+	If 1-(cCustoFa2/ cCuAntF) > 0 .and.  1-(cCustoFa2/ cCuAntF) <= nPerManPr .and. cVenLiq <= cVAtac  .and.  lMantPr = .t.
+
+		cVenLiq := cVAtac
+
+		Mest2 := ( cVenLiq - (Cre + (cVenLiq*PISD) - ((cf-(cVboni/cVquant)) * PISC) + (cVenLiq*CONFD) - ((cf-(cVboni/cVquant))*CONFC) + (cVenLiq*ICMD) - (CC*ICM) + (cVenLiq*CIND) + (cVenLiq*nIdTra) ) ) / cVenLiq
+
+		cCuFinal:= Cre + (cVenLiq*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenLiq*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenLiq*ICMD) - (CC *ICM) + (cVenLiq*CIND) + (cVenLiq*nIdTra)
+
+
+	EndIf
+
+	cIndTrA:= cVenLiq * nIdTra
+
+	cICMTRI := (cVenLiq*ICMD) - (CC *ICM)
+	cCOFINS := (cVenLiq*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
+	cPIS    := (cVenLiq*PISC) - ((cf-(cVboni/cVquant))*PISD)
+
+
+	// calcula relacao MKP Qtd minima atacado
+	//nx:= 2
+	cSuMkAt:= cPerV1
+	aCalc:= {}
+	For n:=1 To (nQtdAt)
+		If n = 1
+			aadd(aCalc,{ cPerV1, 0 })
+		Else
+			aadd(aCalc,{ 0, ((((1+cPerV1)^1)/n)-(1/n)) })
+			nTem:= 0
+			For nx:=1 to Len(aCalc)
+				If Len(aCalc) = nx
+					aCalc[nx,1] := (nTem + aCalc[nx,2])/n
+					cSuMkAt:= aCalc[nx,1]
+				Else
+					nTem+= aCalc[nx,1]
+				EndIf
+
+			Next
+		EndIf
+
+	Next
+
+
+	cSuPrAt :=   (( ( 1/(1 - cSuMkAt))*cre  ) - (  ( 1/(1 - cSuMkAt))*((cf-(cVboni/cVquant))*pisc)  ) - (  ( 1/(1 - cSuMkAt))*((cf-(cVboni/cVquant))*confc)  ) - (  ( 1/(1 - cSuMkAt))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cSuMkAt))*pisd)   -   ((1/(1 - cSuMkAt))*confd)   -   ((1/(1 - cSuMkAt))*icmd) - ((1/(1 - cSuMkAt))*CIND) - ((1/(1 - cSuMkAt))*nIdTra) )
+
+	cSuMkAt:= round(cSuMkAt*100,2)
+
+
+
+	If round(cVenLiq,2) < round(cSuPrAt,2)
+		cBloque+="|B" // A rentabilidade liquida quando o produto atinge a quantidade minima de atacado e menor que 110% a relabilidade do varejo.
+	EndIf
+
+
+	// calcula preco de venda de atacado volume
+
+	cMarPr3:= cMarPr3/100
+
+	cMrPar:= cMarPr3 // margem parametro para calculo
+	cMrgCal:= 0 // margem calculada entre preco de venda e custo final
+	nVlrAju:= 0
+	lOk:= .f.
+	WHILE lOk = .f.
+
+
+		cVenPR3 :=   (( ( 1/(1 - cMarPr3))*cre  ) - (  ( 1/(1 - cMarPr3))*((cf-(cVboni/cVquant))*pisc)  ) - (  ( 1/(1 - cMarPr3))*((cf-(cVboni/cVquant))*confc)  ) - (  ( 1/(1 - cMarPr3))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cMarPr3))*pisd)   -   ((1/(1 - cMarPr3))*confd)   -   ((1/(1 - cMarPr3))*icmd) - ((1/(1 - cMarPr3))*CIND) - ((1/(1 - cMarPr3))*nIdTra) )
+
+
+
+		cCuFinalP3 := Cre + (cVenPR3*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenPR3*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenPR3*ICMD) - (CC *ICM) + (cVenPR3*CIND) + (cVenPR3*nIdTra)
+
+		cMrgCal:= ((round(cVenPR3,2) - round(cCuFinalP3,2))/ round(cVenPR3,2))
+
+		If cMrPar > cMrgCal
+			nVlrAju:= 0.001
+			cMarPr3+= nVlrAju
+		Else
+			lOk:= .t.
+		EndIf
+
+	Enddo
+
+	// verifica se o custo baixo conforme paramentro estipulado no cadastro de subsecao tabela ZAW
+	If 1-(cCustoFa2/ cCuAntF) > 0 .and.  1-(cCustoFa2/ cCuAntF) <= nPerManPr .and. cVenPR3 <= cVAPR3  .and.  lMantPr = .t.
+
+		cVenPR3 := cVAPR3
+
+		cMarPr3 := ( cVenPR3 - (Cre + (cVenPR3*PISD) - ((cf-(cVboni/cVquant)) * PISC) + (cVenPR3*CONFD) - ((cf-(cVboni/cVquant))*CONFC) + (cVenPR3*ICMD) - (CC*ICM) + (cVenPR3*CIND) + (cVenPR3*nIdTra) ) ) / cVenPR3
+
+		cCuFinalP3:= Cre + (cVenPR3*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenPR3*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenPR3*ICMD) - (CC *ICM) + (cVenPR3*CIND) + (cVenPR3*nIdTra)
+
+	EndIf
+
+
+	cCuRepo3:= cCuRepo
+
+	cICMtriP3 := (cVenPR3*ICMD) - (CC *ICM)
+	cCOFINSP3 := (cVenPR3*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
+	cPISP3    := (cVenPR3*PISC) - ((cf-(cVboni/cVquant))*PISD)
+
+	// Modificado Jorge porque valores estavam vindo negativo
+	IF cICMtriP3<0
+		cICMtriP3:= 0
+	ENDIF
+
+	IF cCOFINSP3<0
+		cCOFINSP3:= 0
+	ENDIF
+
+	IF cPISP3 < 0
+		cPISP3 := 0
+	ENDIF
+
+
+	//
+
+
+
+
+
+
+
+
+	cIndTrP3:= cVenPR3 * nIdTra
+
+
+	// calcula relacao MKP Qtd minima atacado
+	nnX:= round((nQtdPr/nQtdAt),0)
+	cSuMk3:= Mest2
+	aCalc:= {}
+
+	For n:=1 To nnX
+		If n = 1
+			aadd(aCalc,{ Mest2, 0 })
+			If nnX = 1
+				cSuMk3:= Mest2
+			EndIf
+		Else
+			aadd(aCalc,{ 0, ((((1+Mest2)^1)/n)-(1/n)) })
+			nTem:= 0
+			For nx:=1 to Len(aCalc)
+				If Len(aCalc) = nx
+					aCalc[nx,1] := (nTem + aCalc[nx,2])/n
+					cSuMk3:= aCalc[nx,1]
+				Else
+					nTem+= aCalc[nx,1]
+				EndIf
+
+			Next
+		EndIf
+
+	Next
+
+
+	cSuPr3 :=   (( ( 1/(1 - cSuMk3))*cre  ) - (  ( 1/(1 - cSuMk3))*((cf-(cVboni/cVquant))*pisc)  ) - (  ( 1/(1 - cSuMk3))*((cf-(cVboni/cVquant))*confc)  ) - (  ( 1/(1 - cSuMk3))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cSuMk3))*pisd)   -   ((1/(1 - cSuMk3))*confd)   -   ((1/(1 - cSuMk3))*icmd) - ((1/(1 - cSuMk3))*CIND) - ((1/(1 - cSuMk3))*nIdTra) )
+
+	cSuMk3:= round(cSuMk3*100,2)
+
+
+	If round(cVenPR3,2) < round(cSuPr3,2)
+		cBloque+="|C" // A rentabilidade liquida quando o produto atinge a quantidade minima do preco 3 e menor que 110% a relabilidade quando atinge a quantidade minima do atacado.
+	EndIf
+
+
+
+	//cMarEst2 :=
+	//Calcula custo de transferencia
+
+	cPrTran :=  (( ( 1/(1 - cPerTran))*cre  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*((cf-(cVboni/cVquant))*0)  ) - (  ( 1/(1 - cPerTran))*(cc*icm) ) ) /  (1 - ( ( 1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*0)   -   ((1/(1 - cPerTran))*icmd) - ((1/(1 - cPerTran))*0) )
+
+	nIdTra:= Round(nIdTra*100,6)
+	ICMD:= nGdAli
+
+	cMarEst2V:= round(cPerV1*100,2)  
+
+	cMarEst2:= round(Mest2*100,2)
+
+	cMarPr3:= round(cMarPr3*100,2)
+
+	If cAut = .f.
+
+		If "A" $ cBloque
+			cReviso+='* Rentabilidade no varejo menor que rentabilidade média da categoria!'  + Chr(13) + Chr(10)
+			oVenLV:setcss(cBgAtec)
+		Else
+			oVenLV:setcss(cBgNorm)
+		EndIf
+
+		If "B" $ cBloque
+			cReviso+='* Rentabilidade atacado menor que o esperado!'  + Chr(13) + Chr(10)
+			oVenLiq:setcss(cBgAtec)
+		Else
+			oVenLiq:setcss(cBgNorm)
+		EndIf
+
+		If "C" $ cBloque
+			cReviso+='* Rentabilidade preço 3 menor que o esperado!'  + Chr(13) + Chr(10)
+			oVenPR3:setcss(cBgAtec)
+		Else
+			oVenPR3:setcss(cBgNorm)
+		EndIf
+
+		If "D" $ cBloque
+			cReviso+='* Participação atacado menor que o esperado!'  + Chr(13) + Chr(10)
+			oQtdAt:setcss(cBgAtec)
+		Else
+			oQtdAt:setcss(cBgNorm)
+		EndIf
+	Endif
+Return .t.
+
+
+STATIC FUNCTION VpreV2(Mest2,Mmin,Mmax,Mest,Cc,CF,PISC,CONFC,ICM,ICMD,CRe,PISD,CONFD,PVENA)
+
+	//mMarEAL:= val(str(Mest2,12,2))
+	mMarEAL:= round(Mest2,2)
+
+	mvendar:= pvena
+
+	//mMarEAL:= Mest2
+
+	Mest2:=Mest2/100
+	Mmin:=Mmin/100
+	Mmax:=Mmax/100
+	Mest:=Mest/100
+	PISC:=PISC/100
+	CONFC:=CONFC/100
+	PISD:=PISD/100
+	CONFD:=CONFD/100
+	ICM:=ICM/100
+	ICMD:=ICMD/100
+	CIND:=GETMV("MV_CUSTIND")/100
+
+	If SD1->D1_CLASFIS = '040'
+		ICM  := 0
+		ICMD := 0
+	EndIf
+
+
+	//P = preço de venda                         M = margem             F = Custo Fabrica               R= Custo fabrica + Frete                 D = custo reposição
+	//X = Aliquota PIS credito               Y = Aliquota Cofins credito       T = Aliquota PIS debito         W = Aliquota cofins debito
+	//A = aliquota ICMS credito          Z = aliquota icms debito
+	//Formula digita preço de venda calcula margem
+
+
+	// P -  PVENA = preço de venda
+	// M -  Mest2 = margem
+	// F - CC     = Custo Fabrica
+	// R - CF     = Custo fabrica + Frete
+	// D - Cre     = custo reposição
+	// X - PISC    = Aliquota PIS CREDITO
+	// Y - CONFC   = Aliquota Cofins CREDITO
+	// t - PISD    = Aliquota PIS DEBIT
+	// w - CONFD   = Aliquota Cofins DEBITO
+
+	// A - ICM    = aliquota ICMS credito
+	// Z - ICMD   = aliquota icms debito
+
+
+	Mest2 := ( PVENA - (Cre + (PVENA*CIND) + (PVENA*PISD) - ((cf-(cVboni/cVquant)) * PISC) + (PVENA*CONFD) - ((cf-(cVboni/cVquant))*CONFC) + (PVENA*ICMD) - (CC*ICM)) ) / PVENA
+
+	cCuFinal:= Cre + (PVENA*PISC) - ((cf-(cVboni/cVquant))*PISD) + (PVENA*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (PVENA*ICMD) - (CC *ICM) + (PVENA*CIND)
+
+
+	cICMTRI := (PVENA*ICMD) - (CC *ICM)
+	cCOFINS := (PVENA*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
+	cPIS := (PVENA*PISC) - ((cf-(cVboni/cVquant))*PISD)
+
+
+	if cPreSug <> 0
+		@ C(048),C(305) Say "Preço Definido Pelo Comprador" Size C(0140),C(008) COLOR CLR_RED PIXEL OF oDlgP
+	endif
+
+
+	//IF mMarEAL <> CMAREST
+	//IF Mest2<Mmin
+	/*// inicio retirado pelo cristian
+	IF cVenLAN <> PVENA
+
+	IF mMarEAL <cMarMin
+
+
+	//IF mMarEAL < Mmin
+
+	if cPreSug = 0
+	//      alert(mMareal)
+	Alert("Margem Menor que a Minima "+STR(Mmin*100,5,2))
+	//      cMarEst2 := Mest
+	cMarEst2:= cMarEst
+	RETURN .F.
+	else
+	@ C(055),C(305) Say "Margem Menor que a Minima "+STR(Mmin*100,5,2) Size C(0140),C(008) COLOR CLR_RED PIXEL OF oDlgP
+	endif
+
+
+	ENDIF
+
+	//IF Mest2>Mmax
+
+	//IF mMarEAL > Mmax
+	IF mMarEAL > cMarMax
+	if cPreSug = 0
+	//      alert(mMarEAL)
+	//     alert(cMarMax)
+	//    alert(mvendar)
+
+	Alert("Margem Maior que a Maxima "+STR(Mmax*100,5,2))
+	//      cMarEst2 := Mest
+	cMarEst2:= cMarEst
+	RETURN .F.
+	else
+	@ C(055),C(305) Say "Margem Maior que a Maxima "+STR(Mmin*100,5,2) Size C(0140),C(008) COLOR CLR_RED PIXEL OF oDlgP
+	endif
+	ENDIF
+
+	ENDIF
+
+	fim do retirado pelo cristian*/
+
+
+
+	cMarEst2 := Mest2*100
+
+
+	// Calculo do Varejo
+
+	cVenLV := (PVENA*cPerV)/100
+	cVenLV := PVENA+cVenLV
+
+	cMarEst2V := ( cVenLV - (Cre + (cVenLV*PISD) - ((cf-(cVboni/cVquant)) * PISC) + (cVenLV*CONFD) - ((cf-(cVboni/cVquant))*CONFC) + (cVenLV*ICMD) - (CC*ICM)) ) / cVenLV
+
+	cICMTRIV := (cVenLV*ICMD) - (CC *ICM)
+	cCOFINSV := (cVenLV*CONFC) - ((cf-(cVboni/cVquant))*CONFD)
+	cPISV := (cVenLV*PISC) - ((cf-(cVboni/cVquant))*PISD)
+
+	cCuFinalV:= Cre + (cVenLV*PISC) - ((cf-(cVboni/cVquant))*PISD) + (cVenLV*CONFC) - ((cf-(cVboni/cVquant))*CONFD) + (cVenLV*ICMD) - (CC *ICM)
+
+
+	cMarEst2V := cMarEst2V*100
+
+	
+
+Return .t.
+
